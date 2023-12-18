@@ -19,6 +19,10 @@
 //#include <boost/chrono/chrono.hpp>
 #include <boost/algorithm/string/predicate.hpp>
 //#include <boost/regex.hpp>
+#include <wx/buffer.h>
+#include <wx/string.h>
+#include <wx/dir.h>
+#include <wx/thread.h>
 
 #define wxTIMEOUT_INFINITE -1
 

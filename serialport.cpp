@@ -15,7 +15,7 @@
 #pragma hdrstop
 #endif //__BORLANDC__
 
-#include "serialport.h"
+#include "serialport.hpp"
 //#include <boost/bind.hpp>
 #include <functional>
 //#include <boost/thread.hpp>
