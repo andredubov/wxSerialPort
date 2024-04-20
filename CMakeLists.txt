@@ -8,6 +8,10 @@ set(CMAKE_CXX_EXTENSIONS OFF)
 
 file(GLOB SOURCES ${PROJECT_SOURCE_DIR}/src/*.cpp)
 
+add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/libs/wxWidgets)
+
 add_library(${PROJECT_NAME} ${SOURCES})
+target_link_libraries(${PROJECT_NAME} wx::core wx::base)
+
 
 target_include_directories(${PROJECT_NAME} PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
