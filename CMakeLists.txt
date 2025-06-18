@@ -18,6 +18,8 @@ endif()
 
 file(GLOB SOURCES ${PROJECT_SOURCE_DIR}/src/*.cpp)
 
+include(cmake/UpdateSubmodules.cmake) # update the submodules here
+
 set(BOOST_INCLUDE_LIBRARIES asio)
 add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/libs/boost EXCLUDE_FROM_ALL)
 add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/libs/wxWidgets)
