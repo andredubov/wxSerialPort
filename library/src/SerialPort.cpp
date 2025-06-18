@@ -15,10 +15,8 @@
 #pragma hdrstop
 #endif //__BORLANDC__
 
-#include "serialport.hpp"
-//#include <boost/bind.hpp>
+#include "SerialPort.hpp"
 #include <functional>
-//#include <boost/thread.hpp>
 
 #ifdef __WXMSW__
 #include <wx/msw/registry.h>
@@ -27,13 +25,13 @@
 wxSerialPortBase::wxSerialPortBase() : m_io_context()
 {
     // Ctor
-    //Init();
+    // Init();
 }
 
 wxSerialPortBase::~wxSerialPortBase()
 {
     // Dtor
-    //m_io_context.~io_context();
+    // m_io_context.~io_context();
 }
 
 std::vector<wxString> wxSerialPortBase::GetPortNames()
@@ -58,7 +56,8 @@ std::vector<wxString> wxSerialPortBase::GetPortNames()
         wxRegKey::ValueType valueType = regKey.GetValueType(strValueName);
 
         if ((valueType == wxRegKey::Type_String || valueType == wxRegKey::Type_Expand_String ||
-             valueType == wxRegKey::Type_Multi_String) && !strValueName.empty())
+             valueType == wxRegKey::Type_Multi_String) &&
+            !strValueName.empty())
         {
             wxString strValueData;
             regKey.QueryValue(strValueName, strValueData);
@@ -67,7 +66,7 @@ std::vector<wxString> wxSerialPortBase::GetPortNames()
 
         bCont = regKey.GetNextValue(strValueName, lIndex);
     }
-#else // !__WXMSW__
+#else  // !__WXMSW__
     wxArrayString arrStrFiles;
     wxDir::GetAllFiles(wxS("/dev/"), &arrStrFiles, wxS("ttyS*"), wxDIR_FILES);
 
@@ -82,7 +81,7 @@ wxSerialPort::wxSerialPort() : m_serialPort(m_io_context), m_timer(m_io_context)
 {
     // Default ctor
     Init();
-    //m_strPortName = wxEmptyString;
+    // m_strPortName = wxEmptyString;
 }
 
 wxSerialPort::wxSerialPort(const char *device)
@@ -92,65 +91,65 @@ wxSerialPort::wxSerialPort(const char *device)
     Init();
 }
 
-wxSerialPort::wxSerialPort(const std::string& device)
+wxSerialPort::wxSerialPort(const std::string &device)
     : m_serialPort(m_io_context, device), m_timer(m_io_context), m_strPortName(device)
 {
     // Ctor
     Init();
 }
 
-wxSerialPort::wxSerialPort(const wxString& device)
+wxSerialPort::wxSerialPort(const wxString &device)
     : m_serialPort(m_io_context, device), m_timer(m_io_context), m_strPortName(device)
 {
     // Ctor
     Init();
 }
 
-wxSerialPort::wxSerialPort(const boost::asio::serial_port::native_handle_type& native_serial_port)
+wxSerialPort::wxSerialPort(const boost::asio::serial_port::native_handle_type &native_serial_port)
     : m_serialPort(m_io_context, native_serial_port), m_timer(m_io_context)
 {
     // Ctor
     Init();
-    //m_strPortName = wxEmptyString;
+    // m_strPortName = wxEmptyString;
 }
 
 // Copy constructor
-wxSerialPort::wxSerialPort(const wxSerialPort& other)
+wxSerialPort::wxSerialPort(const wxSerialPort &other)
     /*: m_serialPort(other.m_serialPort)*/ : m_serialPort(m_io_context) /*, m_timer(other.m_timer)*/, m_timer(m_io_context),
-    m_strPortName(other.m_strPortName)
+                                             m_strPortName(other.m_strPortName)
 {
     // Copy ctor
     Init();
 }
 
 // Copy assignment operator
-wxSerialPort& wxSerialPort::operator=(const wxSerialPort& other)
+wxSerialPort &wxSerialPort::operator=(const wxSerialPort &other)
 {
-    //m_serialPort = other.m_serialPort;
-    //m_timer = other.m_timer;
+    // m_serialPort = other.m_serialPort;
+    // m_timer = other.m_timer;
     m_strPortName = other.m_strPortName;
-    //Init();
+    // Init();
     return *this;
 }
 
 #ifdef BOOST_ASIO_HAS_MOVE
 // Move constructor
-wxSerialPort::wxSerialPort(wxSerialPort&& other)
+wxSerialPort::wxSerialPort(wxSerialPort &&other)
     : m_serialPort(std::move(other.m_serialPort)), m_timer(std::move(other.m_timer)),
-    m_strPortName(/*std::move(*/other.m_strPortName/*)*/) //, m_bytes_read(/*std::move(*/other.m_bytes_read/*)*/),
-    //m_bytes_written(/*std::move(*/other.m_bytes_written/*)*/)
+      m_strPortName(/*std::move(*/ other.m_strPortName /*)*/) //, m_bytes_read(/*std::move(*/other.m_bytes_read/*)*/),
+// m_bytes_written(/*std::move(*/other.m_bytes_written/*)*/)
 {
     // Move ctor
 }
 
 // Move assignment operator
-wxSerialPort& wxSerialPort::operator=(wxSerialPort&& other)
+wxSerialPort &wxSerialPort::operator=(wxSerialPort &&other)
 {
     m_serialPort = std::move(other.m_serialPort);
     m_timer = std::move(other.m_timer);
-    m_strPortName = /*std::move(*/other.m_strPortName/*)*/;
-    //m_bytes_read = /*std::move(*/other.m_bytes_read/*)*/;
-    //m_bytes_written = /*std::move(*/other.m_bytes_written/*)*/;
+    m_strPortName = /*std::move(*/ other.m_strPortName /*)*/;
+    // m_bytes_read = /*std::move(*/other.m_bytes_read/*)*/;
+    // m_bytes_written = /*std::move(*/other.m_bytes_written/*)*/;
     return *this;
 }
 #endif // BOOST_ASIO_HAS_MOVE
@@ -159,15 +158,15 @@ wxSerialPort::~wxSerialPort()
 {
     // Dtor
     m_serialPort.close();
-    //m_serialPort.~serial_port();
+    // m_serialPort.~serial_port();
 }
 
-boost::asio::serial_port& wxSerialPort::GetSerialPort() /*const*/
+boost::asio::serial_port &wxSerialPort::GetSerialPort() /*const*/
 {
     return m_serialPort;
 }
 
-BOOST_ASIO_SYNC_OP_VOID wxSerialPort::Assign(const boost::asio::serial_port::native_handle_type& native_serial_port)
+BOOST_ASIO_SYNC_OP_VOID wxSerialPort::Assign(const boost::asio::serial_port::native_handle_type &native_serial_port)
 {
     boost::system::error_code error;
     m_serialPort.assign(native_serial_port, error);
@@ -182,7 +181,7 @@ BOOST_ASIO_SYNC_OP_VOID wxSerialPort::Assign(const boost::asio::serial_port::nat
 // -------------------------------------------------------------------------------------------------------------------------------
 
 // This helper function is intended for internal use by the class itself
-std::size_t wxSerialPort::DoReadSome(const boost::asio::mutable_buffer& buffer)
+std::size_t wxSerialPort::DoReadSome(const boost::asio::mutable_buffer &buffer)
 {
     boost::system::error_code error;
     std::size_t ret = m_serialPort.read_some(buffer, error);
@@ -190,12 +189,12 @@ std::size_t wxSerialPort::DoReadSome(const boost::asio::mutable_buffer& buffer)
     return ret;
 }
 
-std::size_t wxSerialPort::ReadSome(std::string& strBuffer)
+std::size_t wxSerialPort::ReadSome(std::string &strBuffer)
 {
     return DoReadSome(boost::asio::buffer(strBuffer));
 }
 
-std::size_t wxSerialPort::ReadSome(wxCharBuffer& chBuffer)
+std::size_t wxSerialPort::ReadSome(wxCharBuffer &chBuffer)
 {
     return DoReadSome(boost::asio::buffer(chBuffer.data(), chBuffer.length()));
 }
@@ -206,13 +205,13 @@ std::size_t wxSerialPort::ReadSome(void *pszBuffer, const std::size_t uiSize)
 }
 
 template <typename type>
-std::size_t wxSerialPort::ReadSome(std::vector<type>& vBuffer)
+std::size_t wxSerialPort::ReadSome(std::vector<type> &vBuffer)
 {
     return DoReadSome(boost::asio::buffer(vBuffer));
 }
 
 template <typename type, std::size_t uiSize>
-std::size_t wxSerialPort::ReadSome(std::array<type, uiSize>& arrBuffer)
+std::size_t wxSerialPort::ReadSome(std::array<type, uiSize> &arrBuffer)
 {
     return DoReadSome(boost::asio::buffer(arrBuffer));
 }
@@ -222,35 +221,36 @@ std::size_t wxSerialPort::ReadSome(std::array<type, uiSize>& arrBuffer)
 // -------------------------------------------------------------------------------------------------------------------------------
 
 // This helper function is intended for internal use by the class itself
-std::size_t wxSerialPort::DoReadSome(const boost::asio::mutable_buffer& buffer, const int timeout)
+std::size_t wxSerialPort::DoReadSome(const boost::asio::mutable_buffer &buffer, const int timeout)
 {
     std::size_t bytes_read = 0;
     m_io_context.restart();
     DoAsyncWaitThenCancelAsyncIO(timeout);
 
     m_serialPort.async_read_some(buffer,
-    /*std::bind(&wxSerialPort::AsyncReadHandler, this, std::placeholders::_1, std::placeholders::_2)*/
-    [&](const boost::system::error_code& error, std::size_t bytes_transferred)
-    {
-        // Read operation was not aborted
-        if (!error) // != boost::asio::error::operation_aborted
-            m_timer.cancel();
+                                 /*std::bind(&wxSerialPort::AsyncReadHandler, this, std::placeholders::_1, std::placeholders::_2)*/
+                                 [&](const boost::system::error_code &error, std::size_t bytes_transferred)
+                                 {
+                                     // Read operation was not aborted
+                                     if (!error) // != boost::asio::error::operation_aborted
+                                         m_timer.cancel();
 
-        bytes_read = bytes_transferred;
-        DoSetLastError(error);
-    });
+                                     bytes_read = bytes_transferred;
+                                     DoSetLastError(error);
+                                 });
 
-    std::thread thread1([this] { m_io_context.run(); });
+    std::thread thread1([this]
+                        { m_io_context.run(); });
     thread1.join();
     return bytes_read;
 }
 
-std::size_t wxSerialPort::ReadSome(std::string& strBuffer, const int timeout)
+std::size_t wxSerialPort::ReadSome(std::string &strBuffer, const int timeout)
 {
     return DoReadSome(boost::asio::buffer(strBuffer), timeout);
 }
 
-std::size_t wxSerialPort::ReadSome(wxCharBuffer& chBuffer, const int timeout)
+std::size_t wxSerialPort::ReadSome(wxCharBuffer &chBuffer, const int timeout)
 {
     return DoReadSome(boost::asio::buffer(chBuffer.data(), chBuffer.length()), timeout);
 }
@@ -261,13 +261,13 @@ std::size_t wxSerialPort::ReadSome(void *pszBuffer, const std::size_t uiSize, co
 }
 
 template <typename type>
-std::size_t wxSerialPort::ReadSome(std::vector<type>& vBuffer, const int timeout)
+std::size_t wxSerialPort::ReadSome(std::vector<type> &vBuffer, const int timeout)
 {
     return DoReadSome(boost::asio::buffer(vBuffer), timeout);
 }
 
 template <typename type, std::size_t uiSize>
-std::size_t wxSerialPort::ReadSome(std::array<type, uiSize>& arrBuffer, const int timeout)
+std::size_t wxSerialPort::ReadSome(std::array<type, uiSize> &arrBuffer, const int timeout)
 {
     return DoReadSome(boost::asio::buffer(arrBuffer), timeout);
 }
@@ -277,7 +277,7 @@ std::size_t wxSerialPort::ReadSome(std::array<type, uiSize>& arrBuffer, const in
 // -------------------------------------------------------------------------------------------------------------------------------
 
 // This helper function is intended for internal use by the class itself
-std::size_t wxSerialPort::DoWriteSome(const boost::asio::const_buffer& buffer)
+std::size_t wxSerialPort::DoWriteSome(const boost::asio::const_buffer &buffer)
 {
     boost::system::error_code error;
     std::size_t ret = m_serialPort.write_some(buffer, error);
@@ -285,17 +285,17 @@ std::size_t wxSerialPort::DoWriteSome(const boost::asio::const_buffer& buffer)
     return ret;
 }
 
-std::size_t wxSerialPort::WriteSome(const std::string& strBuffer)
+std::size_t wxSerialPort::WriteSome(const std::string &strBuffer)
 {
     return DoWriteSome(boost::asio::buffer(strBuffer));
 }
 
-std::size_t wxSerialPort::WriteSome(const wxString& strBuffer)
+std::size_t wxSerialPort::WriteSome(const wxString &strBuffer)
 {
     return DoWriteSome(boost::asio::buffer(strBuffer.data(), strBuffer.size()));
 }
 
-std::size_t wxSerialPort::WriteSome(const wxCharBuffer& chBuffer)
+std::size_t wxSerialPort::WriteSome(const wxCharBuffer &chBuffer)
 {
     return DoWriteSome(boost::asio::buffer(chBuffer.data(), chBuffer.length()));
 }
@@ -306,13 +306,13 @@ std::size_t wxSerialPort::WriteSome(const void *pszBuffer, const std::size_t uiS
 }
 
 template <typename type>
-std::size_t wxSerialPort::WriteSome(const std::vector<type>& vBuffer)
+std::size_t wxSerialPort::WriteSome(const std::vector<type> &vBuffer)
 {
     return DoWriteSome(boost::asio::buffer(vBuffer));
 }
 
 template <typename type, std::size_t uiSize>
-std::size_t wxSerialPort::WriteSome(const std::array<type, uiSize>& arrBuffer)
+std::size_t wxSerialPort::WriteSome(const std::array<type, uiSize> &arrBuffer)
 {
     return DoWriteSome(boost::asio::buffer(arrBuffer));
 }
@@ -322,40 +322,41 @@ std::size_t wxSerialPort::WriteSome(const std::array<type, uiSize>& arrBuffer)
 // -------------------------------------------------------------------------------------------------------------------------------
 
 // This helper function is intended for internal use by the class itself
-std::size_t wxSerialPort::DoWriteSome(const boost::asio::const_buffer& buffer, const int timeout)
+std::size_t wxSerialPort::DoWriteSome(const boost::asio::const_buffer &buffer, const int timeout)
 {
     std::size_t bytes_written = 0;
     m_io_context.restart();
     DoAsyncWaitThenCancelAsyncIO(timeout);
 
     m_serialPort.async_write_some(buffer,
-    /*std::bind(&wxSerialPort::AsyncWriteHandler, this, std::placeholders::_1, std::placeholders::_2)*/
-    [&](const boost::system::error_code& error, std::size_t bytes_transferred)
-    {
-        // Write operation was not aborted
-        if (!error) // != boost::asio::error::operation_aborted
-            m_timer.cancel();
+                                  /*std::bind(&wxSerialPort::AsyncWriteHandler, this, std::placeholders::_1, std::placeholders::_2)*/
+                                  [&](const boost::system::error_code &error, std::size_t bytes_transferred)
+                                  {
+                                      // Write operation was not aborted
+                                      if (!error) // != boost::asio::error::operation_aborted
+                                          m_timer.cancel();
 
-        bytes_written = bytes_transferred;
-        DoSetLastError(error);
-    });
+                                      bytes_written = bytes_transferred;
+                                      DoSetLastError(error);
+                                  });
 
-    std::thread thread1([this] { m_io_context.run(); });
+    std::thread thread1([this]
+                        { m_io_context.run(); });
     thread1.join();
     return bytes_written;
 }
 
-std::size_t wxSerialPort::WriteSome(const std::string& strBuffer, const int timeout)
+std::size_t wxSerialPort::WriteSome(const std::string &strBuffer, const int timeout)
 {
     return DoWriteSome(boost::asio::buffer(strBuffer), timeout);
 }
 
-std::size_t wxSerialPort::WriteSome(const wxString& strBuffer, const int timeout)
+std::size_t wxSerialPort::WriteSome(const wxString &strBuffer, const int timeout)
 {
     return DoWriteSome(boost::asio::buffer(strBuffer.data(), strBuffer.size()), timeout);
 }
 
-std::size_t wxSerialPort::WriteSome(const wxCharBuffer& chBuffer, const int timeout)
+std::size_t wxSerialPort::WriteSome(const wxCharBuffer &chBuffer, const int timeout)
 {
     return DoWriteSome(boost::asio::buffer(chBuffer.data(), chBuffer.length()), timeout);
 }
@@ -366,13 +367,13 @@ std::size_t wxSerialPort::WriteSome(const void *pszBuffer, const std::size_t uiS
 }
 
 template <typename type>
-std::size_t wxSerialPort::WriteSome(const std::vector<type>& vBuffer, const int timeout)
+std::size_t wxSerialPort::WriteSome(const std::vector<type> &vBuffer, const int timeout)
 {
     return DoWriteSome(boost::asio::buffer(vBuffer), timeout);
 }
 
 template <typename type, std::size_t uiSize>
-std::size_t wxSerialPort::WriteSome(const std::array<type, uiSize>& arrBuffer, const int timeout)
+std::size_t wxSerialPort::WriteSome(const std::array<type, uiSize> &arrBuffer, const int timeout)
 {
     return DoWriteSome(boost::asio::buffer(arrBuffer), timeout);
 }
@@ -385,43 +386,43 @@ std::size_t wxSerialPort::WriteSome(const std::array<type, uiSize>& arrBuffer, c
 
 // This helper function is intended for internal use by the class itself
 template <typename ReadHandler>
-BOOST_ASIO_INITFN_RESULT_TYPE(ReadHandler, void (boost::system::error_code, std::size_t)) // Return type
-wxSerialPort::DoAsyncReadSome(const boost::asio::mutable_buffer& buffer, BOOST_ASIO_MOVE_ARG(ReadHandler) handler)
+BOOST_ASIO_INITFN_RESULT_TYPE(ReadHandler, void(boost::system::error_code, std::size_t)) // Return type
+wxSerialPort::DoAsyncReadSome(const boost::asio::mutable_buffer &buffer, BOOST_ASIO_MOVE_ARG(ReadHandler) handler)
 {
     return m_serialPort.async_read_some(buffer, handler);
 }
 
 template <typename ReadHandler>
-BOOST_ASIO_INITFN_RESULT_TYPE(ReadHandler, void (boost::system::error_code, std::size_t)) // Return type
-wxSerialPort::AsyncReadSome(std::string& strBuffer, BOOST_ASIO_MOVE_ARG(ReadHandler) handler)
+BOOST_ASIO_INITFN_RESULT_TYPE(ReadHandler, void(boost::system::error_code, std::size_t)) // Return type
+wxSerialPort::AsyncReadSome(std::string &strBuffer, BOOST_ASIO_MOVE_ARG(ReadHandler) handler)
 {
     return DoAsyncReadSome(boost::asio::buffer(strBuffer), handler);
 }
 
 template <typename ReadHandler>
-BOOST_ASIO_INITFN_RESULT_TYPE(ReadHandler, void (boost::system::error_code, std::size_t)) // Return type
-wxSerialPort::AsyncReadSome(wxCharBuffer& chBuffer, BOOST_ASIO_MOVE_ARG(ReadHandler) handler)
+BOOST_ASIO_INITFN_RESULT_TYPE(ReadHandler, void(boost::system::error_code, std::size_t)) // Return type
+wxSerialPort::AsyncReadSome(wxCharBuffer &chBuffer, BOOST_ASIO_MOVE_ARG(ReadHandler) handler)
 {
     return DoAsyncReadSome(boost::asio::buffer(chBuffer.data(), chBuffer.length()), handler);
 }
 
 template <typename ReadHandler>
-BOOST_ASIO_INITFN_RESULT_TYPE(ReadHandler, void (boost::system::error_code, std::size_t)) // Return type
+BOOST_ASIO_INITFN_RESULT_TYPE(ReadHandler, void(boost::system::error_code, std::size_t)) // Return type
 wxSerialPort::AsyncReadSome(void *pszBuffer, const std::size_t uiSize, BOOST_ASIO_MOVE_ARG(ReadHandler) handler)
 {
     return DoAsyncReadSome(boost::asio::buffer(pszBuffer, uiSize), handler);
 }
 
 template <typename type, typename ReadHandler>
-BOOST_ASIO_INITFN_RESULT_TYPE(ReadHandler, void (boost::system::error_code, std::size_t)) // Return type
-wxSerialPort::AsyncReadSome(std::vector<type>& vBuffer, BOOST_ASIO_MOVE_ARG(ReadHandler) handler)
+BOOST_ASIO_INITFN_RESULT_TYPE(ReadHandler, void(boost::system::error_code, std::size_t)) // Return type
+wxSerialPort::AsyncReadSome(std::vector<type> &vBuffer, BOOST_ASIO_MOVE_ARG(ReadHandler) handler)
 {
     return DoAsyncReadSome(boost::asio::buffer(vBuffer), handler);
 }
 
 template <typename type, std::size_t uiSize, typename ReadHandler>
-BOOST_ASIO_INITFN_RESULT_TYPE(ReadHandler, void (boost::system::error_code, std::size_t)) // Return type
-wxSerialPort::AsyncReadSome(std::array<type, uiSize>& arrBuffer, BOOST_ASIO_MOVE_ARG(ReadHandler) handler)
+BOOST_ASIO_INITFN_RESULT_TYPE(ReadHandler, void(boost::system::error_code, std::size_t)) // Return type
+wxSerialPort::AsyncReadSome(std::array<type, uiSize> &arrBuffer, BOOST_ASIO_MOVE_ARG(ReadHandler) handler)
 {
     return DoAsyncReadSome(boost::asio::buffer(arrBuffer), handler);
 }
@@ -432,44 +433,44 @@ wxSerialPort::AsyncReadSome(std::array<type, uiSize>& arrBuffer, BOOST_ASIO_MOVE
 
 // This helper function is intended for internal use by the class itself
 template <typename ReadHandler>
-BOOST_ASIO_INITFN_RESULT_TYPE(ReadHandler, void (boost::system::error_code, std::size_t)) // Return type
-wxSerialPort::DoAsyncReadSome(const boost::asio::mutable_buffer& buffer, BOOST_ASIO_MOVE_ARG(ReadHandler) handler, const int timeout)
+BOOST_ASIO_INITFN_RESULT_TYPE(ReadHandler, void(boost::system::error_code, std::size_t)) // Return type
+wxSerialPort::DoAsyncReadSome(const boost::asio::mutable_buffer &buffer, BOOST_ASIO_MOVE_ARG(ReadHandler) handler, const int timeout)
 {
     DoAsyncWaitThenCancelAsyncIO(timeout);
     return m_serialPort.async_read_some(buffer, handler);
 }
 
 template <typename ReadHandler>
-BOOST_ASIO_INITFN_RESULT_TYPE(ReadHandler, void (boost::system::error_code, std::size_t)) // Return type
-wxSerialPort::AsyncReadSome(std::string& strBuffer, BOOST_ASIO_MOVE_ARG(ReadHandler) handler, const int timeout)
+BOOST_ASIO_INITFN_RESULT_TYPE(ReadHandler, void(boost::system::error_code, std::size_t)) // Return type
+wxSerialPort::AsyncReadSome(std::string &strBuffer, BOOST_ASIO_MOVE_ARG(ReadHandler) handler, const int timeout)
 {
     return DoAsyncReadSome(boost::asio::buffer(strBuffer), handler, timeout);
 }
 
 template <typename ReadHandler>
-BOOST_ASIO_INITFN_RESULT_TYPE(ReadHandler, void (boost::system::error_code, std::size_t)) // Return type
-wxSerialPort::AsyncReadSome(wxCharBuffer& chBuffer, BOOST_ASIO_MOVE_ARG(ReadHandler) handler, const int timeout)
+BOOST_ASIO_INITFN_RESULT_TYPE(ReadHandler, void(boost::system::error_code, std::size_t)) // Return type
+wxSerialPort::AsyncReadSome(wxCharBuffer &chBuffer, BOOST_ASIO_MOVE_ARG(ReadHandler) handler, const int timeout)
 {
     return DoAsyncReadSome(boost::asio::buffer(chBuffer.data(), chBuffer.length()), handler, timeout);
 }
 
 template <typename ReadHandler>
-BOOST_ASIO_INITFN_RESULT_TYPE(ReadHandler, void (boost::system::error_code, std::size_t)) // Return type
+BOOST_ASIO_INITFN_RESULT_TYPE(ReadHandler, void(boost::system::error_code, std::size_t)) // Return type
 wxSerialPort::AsyncReadSome(void *pszBuffer, const std::size_t uiSize, BOOST_ASIO_MOVE_ARG(ReadHandler) handler, const int timeout)
 {
     return DoAsyncReadSome(boost::asio::buffer(pszBuffer, uiSize), handler, timeout);
 }
 
 template <typename type, typename ReadHandler>
-BOOST_ASIO_INITFN_RESULT_TYPE(ReadHandler, void (boost::system::error_code, std::size_t)) // Return type
-wxSerialPort::AsyncReadSome(std::vector<type>& vBuffer, BOOST_ASIO_MOVE_ARG(ReadHandler) handler, const int timeout)
+BOOST_ASIO_INITFN_RESULT_TYPE(ReadHandler, void(boost::system::error_code, std::size_t)) // Return type
+wxSerialPort::AsyncReadSome(std::vector<type> &vBuffer, BOOST_ASIO_MOVE_ARG(ReadHandler) handler, const int timeout)
 {
     return DoAsyncReadSome(boost::asio::buffer(vBuffer), handler, timeout);
 }
 
 template <typename type, std::size_t uiSize, typename ReadHandler>
-BOOST_ASIO_INITFN_RESULT_TYPE(ReadHandler, void (boost::system::error_code, std::size_t)) // Return type
-wxSerialPort::AsyncReadSome(std::array<type, uiSize>& arrBuffer, BOOST_ASIO_MOVE_ARG(ReadHandler) handler, const int timeout)
+BOOST_ASIO_INITFN_RESULT_TYPE(ReadHandler, void(boost::system::error_code, std::size_t)) // Return type
+wxSerialPort::AsyncReadSome(std::array<type, uiSize> &arrBuffer, BOOST_ASIO_MOVE_ARG(ReadHandler) handler, const int timeout)
 {
     return DoAsyncReadSome(boost::asio::buffer(arrBuffer), handler, timeout);
 }
@@ -480,50 +481,50 @@ wxSerialPort::AsyncReadSome(std::array<type, uiSize>& arrBuffer, BOOST_ASIO_MOVE
 
 // This helper function is intended for internal use by the class itself
 template <typename WriteHandler>
-BOOST_ASIO_INITFN_RESULT_TYPE(WriteHandler, void (boost::system::error_code, std::size_t)) // Return type
-wxSerialPort::DoAsyncWriteSome(const boost::asio::const_buffer& buffer, BOOST_ASIO_MOVE_ARG(WriteHandler) handler)
+BOOST_ASIO_INITFN_RESULT_TYPE(WriteHandler, void(boost::system::error_code, std::size_t)) // Return type
+wxSerialPort::DoAsyncWriteSome(const boost::asio::const_buffer &buffer, BOOST_ASIO_MOVE_ARG(WriteHandler) handler)
 {
     return m_serialPort.async_write_some(buffer, handler);
 }
 
 template <typename WriteHandler>
-BOOST_ASIO_INITFN_RESULT_TYPE(WriteHandler, void (boost::system::error_code, std::size_t)) // Return type
-wxSerialPort::AsyncWriteSome(const std::string& strBuffer, BOOST_ASIO_MOVE_ARG(WriteHandler) handler)
+BOOST_ASIO_INITFN_RESULT_TYPE(WriteHandler, void(boost::system::error_code, std::size_t)) // Return type
+wxSerialPort::AsyncWriteSome(const std::string &strBuffer, BOOST_ASIO_MOVE_ARG(WriteHandler) handler)
 {
     return DoWriteSome(boost::asio::buffer(strBuffer), handler);
 }
 
 template <typename WriteHandler>
-BOOST_ASIO_INITFN_RESULT_TYPE(WriteHandler, void (boost::system::error_code, std::size_t)) // Return type
-wxSerialPort::AsyncWriteSome(const wxString& strBuffer, BOOST_ASIO_MOVE_ARG(WriteHandler) handler)
+BOOST_ASIO_INITFN_RESULT_TYPE(WriteHandler, void(boost::system::error_code, std::size_t)) // Return type
+wxSerialPort::AsyncWriteSome(const wxString &strBuffer, BOOST_ASIO_MOVE_ARG(WriteHandler) handler)
 {
     return DoWriteSome(boost::asio::buffer(strBuffer.data(), strBuffer.size()), handler);
 }
 
 template <typename WriteHandler>
-BOOST_ASIO_INITFN_RESULT_TYPE(WriteHandler, void (boost::system::error_code, std::size_t)) // Return type
-wxSerialPort::AsyncWriteSome(const wxCharBuffer& chBuffer, BOOST_ASIO_MOVE_ARG(WriteHandler) handler)
+BOOST_ASIO_INITFN_RESULT_TYPE(WriteHandler, void(boost::system::error_code, std::size_t)) // Return type
+wxSerialPort::AsyncWriteSome(const wxCharBuffer &chBuffer, BOOST_ASIO_MOVE_ARG(WriteHandler) handler)
 {
     return DoWriteSome(boost::asio::buffer(chBuffer.data(), chBuffer.length()), handler);
 }
 
 template <typename WriteHandler>
-BOOST_ASIO_INITFN_RESULT_TYPE(WriteHandler, void (boost::system::error_code, std::size_t)) // Return type
+BOOST_ASIO_INITFN_RESULT_TYPE(WriteHandler, void(boost::system::error_code, std::size_t)) // Return type
 wxSerialPort::AsyncWriteSome(const void *pszBuffer, const std::size_t uiSize, BOOST_ASIO_MOVE_ARG(WriteHandler) handler)
 {
     return DoWriteSome(boost::asio::buffer(pszBuffer, uiSize), handler);
 }
 
 template <typename type, typename WriteHandler>
-BOOST_ASIO_INITFN_RESULT_TYPE(WriteHandler, void (boost::system::error_code, std::size_t)) // Return type
-wxSerialPort::AsyncWriteSome(const std::vector<type>& vBuffer, BOOST_ASIO_MOVE_ARG(WriteHandler) handler)
+BOOST_ASIO_INITFN_RESULT_TYPE(WriteHandler, void(boost::system::error_code, std::size_t)) // Return type
+wxSerialPort::AsyncWriteSome(const std::vector<type> &vBuffer, BOOST_ASIO_MOVE_ARG(WriteHandler) handler)
 {
     return DoWriteSome(boost::asio::buffer(vBuffer), handler);
 }
 
 template <typename type, std::size_t uiSize, typename WriteHandler>
-BOOST_ASIO_INITFN_RESULT_TYPE(WriteHandler, void (boost::system::error_code, std::size_t)) // Return type
-wxSerialPort::AsyncWriteSome(const std::array<type, uiSize>& arrBuffer, BOOST_ASIO_MOVE_ARG(WriteHandler) handler)
+BOOST_ASIO_INITFN_RESULT_TYPE(WriteHandler, void(boost::system::error_code, std::size_t)) // Return type
+wxSerialPort::AsyncWriteSome(const std::array<type, uiSize> &arrBuffer, BOOST_ASIO_MOVE_ARG(WriteHandler) handler)
 {
     return DoWriteSome(boost::asio::buffer(arrBuffer), handler);
 }
@@ -534,51 +535,51 @@ wxSerialPort::AsyncWriteSome(const std::array<type, uiSize>& arrBuffer, BOOST_AS
 
 // This helper function is intended for internal use by the class itself
 template <typename WriteHandler>
-BOOST_ASIO_INITFN_RESULT_TYPE(WriteHandler, void (boost::system::error_code, std::size_t)) // Return type
-wxSerialPort::DoAsyncWriteSome(const boost::asio::const_buffer& buffer, BOOST_ASIO_MOVE_ARG(WriteHandler) handler, const int timeout)
+BOOST_ASIO_INITFN_RESULT_TYPE(WriteHandler, void(boost::system::error_code, std::size_t)) // Return type
+wxSerialPort::DoAsyncWriteSome(const boost::asio::const_buffer &buffer, BOOST_ASIO_MOVE_ARG(WriteHandler) handler, const int timeout)
 {
     DoAsyncWaitThenCancelAsyncIO(timeout);
     return m_serialPort.async_write_some(buffer, handler);
 }
 
 template <typename WriteHandler>
-BOOST_ASIO_INITFN_RESULT_TYPE(WriteHandler, void (boost::system::error_code, std::size_t)) // Return type
-wxSerialPort::AsyncWriteSome(const std::string& strBuffer, BOOST_ASIO_MOVE_ARG(WriteHandler) handler, const int timeout)
+BOOST_ASIO_INITFN_RESULT_TYPE(WriteHandler, void(boost::system::error_code, std::size_t)) // Return type
+wxSerialPort::AsyncWriteSome(const std::string &strBuffer, BOOST_ASIO_MOVE_ARG(WriteHandler) handler, const int timeout)
 {
     return DoWriteSome(boost::asio::buffer(strBuffer), handler, timeout);
 }
 
 template <typename WriteHandler>
-BOOST_ASIO_INITFN_RESULT_TYPE(WriteHandler, void (boost::system::error_code, std::size_t)) // Return type
-wxSerialPort::AsyncWriteSome(const wxString& strBuffer, BOOST_ASIO_MOVE_ARG(WriteHandler) handler, const int timeout)
+BOOST_ASIO_INITFN_RESULT_TYPE(WriteHandler, void(boost::system::error_code, std::size_t)) // Return type
+wxSerialPort::AsyncWriteSome(const wxString &strBuffer, BOOST_ASIO_MOVE_ARG(WriteHandler) handler, const int timeout)
 {
     return DoWriteSome(boost::asio::buffer(strBuffer.data(), strBuffer.size()), handler, timeout);
 }
 
 template <typename WriteHandler>
-BOOST_ASIO_INITFN_RESULT_TYPE(WriteHandler, void (boost::system::error_code, std::size_t)) // Return type
-wxSerialPort::AsyncWriteSome(const wxCharBuffer& chBuffer, BOOST_ASIO_MOVE_ARG(WriteHandler) handler, const int timeout)
+BOOST_ASIO_INITFN_RESULT_TYPE(WriteHandler, void(boost::system::error_code, std::size_t)) // Return type
+wxSerialPort::AsyncWriteSome(const wxCharBuffer &chBuffer, BOOST_ASIO_MOVE_ARG(WriteHandler) handler, const int timeout)
 {
     return DoWriteSome(boost::asio::buffer(chBuffer.data(), chBuffer.length()), handler, timeout);
 }
 
 template <typename WriteHandler>
-BOOST_ASIO_INITFN_RESULT_TYPE(WriteHandler, void (boost::system::error_code, std::size_t)) // Return type
+BOOST_ASIO_INITFN_RESULT_TYPE(WriteHandler, void(boost::system::error_code, std::size_t)) // Return type
 wxSerialPort::AsyncWriteSome(const void *pszBuffer, const std::size_t uiSize, BOOST_ASIO_MOVE_ARG(WriteHandler) handler, const int timeout)
 {
     return DoWriteSome(boost::asio::buffer(pszBuffer, uiSize), handler, timeout);
 }
 
 template <typename type, typename WriteHandler>
-BOOST_ASIO_INITFN_RESULT_TYPE(WriteHandler, void (boost::system::error_code, std::size_t)) // Return type
-wxSerialPort::AsyncWriteSome(const std::vector<type>& vBuffer, BOOST_ASIO_MOVE_ARG(WriteHandler) handler, const int timeout)
+BOOST_ASIO_INITFN_RESULT_TYPE(WriteHandler, void(boost::system::error_code, std::size_t)) // Return type
+wxSerialPort::AsyncWriteSome(const std::vector<type> &vBuffer, BOOST_ASIO_MOVE_ARG(WriteHandler) handler, const int timeout)
 {
     return DoWriteSome(boost::asio::buffer(vBuffer), handler, timeout);
 }
 
 template <typename type, std::size_t uiSize, typename WriteHandler>
-BOOST_ASIO_INITFN_RESULT_TYPE(WriteHandler, void (boost::system::error_code, std::size_t)) // Return type
-wxSerialPort::AsyncWriteSome(const std::array<type, uiSize>& arrBuffer, BOOST_ASIO_MOVE_ARG(WriteHandler) handler, const int timeout)
+BOOST_ASIO_INITFN_RESULT_TYPE(WriteHandler, void(boost::system::error_code, std::size_t)) // Return type
+wxSerialPort::AsyncWriteSome(const std::array<type, uiSize> &arrBuffer, BOOST_ASIO_MOVE_ARG(WriteHandler) handler, const int timeout)
 {
     return DoWriteSome(boost::asio::buffer(arrBuffer), handler, timeout);
 }
@@ -590,7 +591,7 @@ wxSerialPort::AsyncWriteSome(const std::array<type, uiSize>& arrBuffer, BOOST_AS
 // -------------------------------------------------------------------------------------------------------------------------------
 
 // This helper function is intended for internal use by the class itself
-std::size_t wxSerialPort::DoRead(const boost::asio::mutable_buffer& buffer)
+std::size_t wxSerialPort::DoRead(const boost::asio::mutable_buffer &buffer)
 {
     boost::system::error_code error;
     std::size_t ret = boost::asio::read(m_serialPort, buffer, error);
@@ -598,12 +599,12 @@ std::size_t wxSerialPort::DoRead(const boost::asio::mutable_buffer& buffer)
     return ret;
 }
 
-std::size_t wxSerialPort::Read(std::string& strBuffer)
+std::size_t wxSerialPort::Read(std::string &strBuffer)
 {
     return DoRead(boost::asio::buffer(strBuffer));
 }
 
-std::size_t wxSerialPort::Read(wxCharBuffer& chBuffer)
+std::size_t wxSerialPort::Read(wxCharBuffer &chBuffer)
 {
     return DoRead(boost::asio::buffer(chBuffer.data(), chBuffer.length()));
 }
@@ -614,13 +615,13 @@ std::size_t wxSerialPort::Read(void *pszBuffer, const std::size_t uiSize)
 }
 
 template <typename type>
-std::size_t wxSerialPort::Read(std::vector<type>& vBuffer)
+std::size_t wxSerialPort::Read(std::vector<type> &vBuffer)
 {
     return DoRead(boost::asio::buffer(vBuffer));
 }
 
 template <typename type, std::size_t uiSize>
-std::size_t wxSerialPort::Read(std::array<type, uiSize>& arrBuffer)
+std::size_t wxSerialPort::Read(std::array<type, uiSize> &arrBuffer)
 {
     return DoRead(boost::asio::buffer(arrBuffer));
 }
@@ -630,35 +631,36 @@ std::size_t wxSerialPort::Read(std::array<type, uiSize>& arrBuffer)
 // -------------------------------------------------------------------------------------------------------------------------------
 
 // This helper function is intended for internal use by the class itself
-std::size_t wxSerialPort::DoRead(const boost::asio::mutable_buffer& buffer, const int timeout)
+std::size_t wxSerialPort::DoRead(const boost::asio::mutable_buffer &buffer, const int timeout)
 {
     std::size_t bytes_read = 0;
     m_io_context.restart();
     DoAsyncWaitThenCancelAsyncIO(timeout);
 
     boost::asio::async_read(m_serialPort, buffer,
-    /*std::bind(&wxSerialPort::AsyncReadHandler, this, std::placeholders::_1, std::placeholders::_2)*/
-    [&](const boost::system::error_code& error, std::size_t bytes_transferred)
-    {
-        // Read operation was not aborted
-        if (!error) // != boost::asio::error::operation_aborted
-            m_timer.cancel();
+                            /*std::bind(&wxSerialPort::AsyncReadHandler, this, std::placeholders::_1, std::placeholders::_2)*/
+                            [&](const boost::system::error_code &error, std::size_t bytes_transferred)
+                            {
+                                // Read operation was not aborted
+                                if (!error) // != boost::asio::error::operation_aborted
+                                    m_timer.cancel();
 
-        bytes_read = bytes_transferred;
-        DoSetLastError(error);
-    });
+                                bytes_read = bytes_transferred;
+                                DoSetLastError(error);
+                            });
 
-    std::thread thread1([this] { m_io_context.run(); });
+    std::thread thread1([this]
+                        { m_io_context.run(); });
     thread1.join();
     return bytes_read;
 }
 
-std::size_t wxSerialPort::Read(std::string& strBuffer, const int timeout)
+std::size_t wxSerialPort::Read(std::string &strBuffer, const int timeout)
 {
     return DoRead(boost::asio::buffer(strBuffer), timeout);
 }
 
-std::size_t wxSerialPort::Read(wxCharBuffer& chBuffer, const int timeout)
+std::size_t wxSerialPort::Read(wxCharBuffer &chBuffer, const int timeout)
 {
     return DoRead(boost::asio::buffer(chBuffer.data(), chBuffer.length()), timeout);
 }
@@ -669,13 +671,13 @@ std::size_t wxSerialPort::Read(void *pszBuffer, const std::size_t uiSize, const 
 }
 
 template <typename type>
-std::size_t wxSerialPort::Read(std::vector<type>& vBuffer, const int timeout)
+std::size_t wxSerialPort::Read(std::vector<type> &vBuffer, const int timeout)
 {
     return DoRead(boost::asio::buffer(vBuffer), timeout);
 }
 
 template <typename type, std::size_t uiSize>
-std::size_t wxSerialPort::Read(std::array<type, uiSize>& arrBuffer, const int timeout)
+std::size_t wxSerialPort::Read(std::array<type, uiSize> &arrBuffer, const int timeout)
 {
     return DoRead(boost::asio::buffer(arrBuffer), timeout);
 }
@@ -685,7 +687,7 @@ std::size_t wxSerialPort::Read(std::array<type, uiSize>& arrBuffer, const int ti
 // -------------------------------------------------------------------------------------------------------------------------------
 
 // This helper function is intended for internal use by the class itself
-std::size_t wxSerialPort::DoWrite(const boost::asio::const_buffer& buffer)
+std::size_t wxSerialPort::DoWrite(const boost::asio::const_buffer &buffer)
 {
     boost::system::error_code error;
     std::size_t ret = boost::asio::write(m_serialPort, buffer, error);
@@ -693,17 +695,17 @@ std::size_t wxSerialPort::DoWrite(const boost::asio::const_buffer& buffer)
     return ret;
 }
 
-std::size_t wxSerialPort::Write(const std::string& strBuffer)
+std::size_t wxSerialPort::Write(const std::string &strBuffer)
 {
     return DoWrite(boost::asio::buffer(strBuffer));
 }
 
-std::size_t wxSerialPort::Write(const wxString& strBuffer)
+std::size_t wxSerialPort::Write(const wxString &strBuffer)
 {
     return DoWrite(boost::asio::buffer(strBuffer.data(), strBuffer.size()));
 }
 
-std::size_t wxSerialPort::Write(const wxCharBuffer& chBuffer)
+std::size_t wxSerialPort::Write(const wxCharBuffer &chBuffer)
 {
     return DoWrite(boost::asio::buffer(chBuffer.data(), chBuffer.length()));
 }
@@ -714,13 +716,13 @@ std::size_t wxSerialPort::Write(const void *pszBuffer, const std::size_t uiSize)
 }
 
 template <typename type>
-std::size_t wxSerialPort::Write(const std::vector<type>& vBuffer)
+std::size_t wxSerialPort::Write(const std::vector<type> &vBuffer)
 {
     return DoWrite(boost::asio::buffer(vBuffer));
 }
 
 template <typename type, std::size_t uiSize>
-std::size_t wxSerialPort::Write(const std::array<type, uiSize>& arrBuffer)
+std::size_t wxSerialPort::Write(const std::array<type, uiSize> &arrBuffer)
 {
     return DoWrite(boost::asio::buffer(arrBuffer));
 }
@@ -730,40 +732,41 @@ std::size_t wxSerialPort::Write(const std::array<type, uiSize>& arrBuffer)
 // -------------------------------------------------------------------------------------------------------------------------------
 
 // This helper function is intended for internal use by the class itself
-std::size_t wxSerialPort::DoWrite(const boost::asio::const_buffer& buffer, const int timeout)
+std::size_t wxSerialPort::DoWrite(const boost::asio::const_buffer &buffer, const int timeout)
 {
     std::size_t bytes_written = 0;
     m_io_context.restart();
     DoAsyncWaitThenCancelAsyncIO(timeout);
 
     boost::asio::async_write(m_serialPort, buffer,
-    /*std::bind(&wxSerialPort::AsyncWriteHandler, this, std::placeholders::_1, std::placeholders::_2)*/
-    [&](const boost::system::error_code& error, std::size_t bytes_transferred)
-    {
-        // Write operation was not aborted
-        if (!error) // != boost::asio::error::operation_aborted
-            m_timer.cancel();
+                             /*std::bind(&wxSerialPort::AsyncWriteHandler, this, std::placeholders::_1, std::placeholders::_2)*/
+                             [&](const boost::system::error_code &error, std::size_t bytes_transferred)
+                             {
+                                 // Write operation was not aborted
+                                 if (!error) // != boost::asio::error::operation_aborted
+                                     m_timer.cancel();
 
-        bytes_written = bytes_transferred;
-        DoSetLastError(error);
-    });
+                                 bytes_written = bytes_transferred;
+                                 DoSetLastError(error);
+                             });
 
-    std::thread thread1([this] { m_io_context.run(); });
+    std::thread thread1([this]
+                        { m_io_context.run(); });
     thread1.join();
     return bytes_written;
 }
 
-std::size_t wxSerialPort::Write(const std::string& strBuffer, const int timeout)
+std::size_t wxSerialPort::Write(const std::string &strBuffer, const int timeout)
 {
     return DoWrite(boost::asio::buffer(strBuffer), timeout);
 }
 
-std::size_t wxSerialPort::Write(const wxString& strBuffer, const int timeout)
+std::size_t wxSerialPort::Write(const wxString &strBuffer, const int timeout)
 {
     return DoWrite(boost::asio::buffer(strBuffer.data(), strBuffer.size()), timeout);
 }
 
-std::size_t wxSerialPort::Write(const wxCharBuffer& chBuffer, const int timeout)
+std::size_t wxSerialPort::Write(const wxCharBuffer &chBuffer, const int timeout)
 {
     return DoWrite(boost::asio::buffer(chBuffer.data(), chBuffer.length()), timeout);
 }
@@ -774,13 +777,13 @@ std::size_t wxSerialPort::Write(const void *pszBuffer, const std::size_t uiSize,
 }
 
 template <typename type>
-std::size_t wxSerialPort::Write(const std::vector<type>& vBuffer, const int timeout)
+std::size_t wxSerialPort::Write(const std::vector<type> &vBuffer, const int timeout)
 {
     return DoWrite(boost::asio::buffer(vBuffer), timeout);
 }
 
 template <typename type, std::size_t uiSize>
-std::size_t wxSerialPort::Write(const std::array<type, uiSize>& arrBuffer, const int timeout)
+std::size_t wxSerialPort::Write(const std::array<type, uiSize> &arrBuffer, const int timeout)
 {
     return DoWrite(boost::asio::buffer(arrBuffer), timeout);
 }
@@ -793,43 +796,43 @@ std::size_t wxSerialPort::Write(const std::array<type, uiSize>& arrBuffer, const
 
 // This helper function is intended for internal use by the class itself
 template <typename ReadHandler>
-BOOST_ASIO_INITFN_RESULT_TYPE(ReadHandler, void (boost::system::error_code, std::size_t)) // Return type
-wxSerialPort::DoAsyncRead(const boost::asio::mutable_buffer& buffer, BOOST_ASIO_MOVE_ARG(ReadHandler) handler)
+BOOST_ASIO_INITFN_RESULT_TYPE(ReadHandler, void(boost::system::error_code, std::size_t)) // Return type
+wxSerialPort::DoAsyncRead(const boost::asio::mutable_buffer &buffer, BOOST_ASIO_MOVE_ARG(ReadHandler) handler)
 {
     return boost::asio::async_read(m_serialPort, buffer, handler);
 }
 
 template <typename ReadHandler>
-BOOST_ASIO_INITFN_RESULT_TYPE(ReadHandler, void (boost::system::error_code, std::size_t)) // Return type
-wxSerialPort::AsyncRead(std::string& strBuffer, BOOST_ASIO_MOVE_ARG(ReadHandler) handler)
+BOOST_ASIO_INITFN_RESULT_TYPE(ReadHandler, void(boost::system::error_code, std::size_t)) // Return type
+wxSerialPort::AsyncRead(std::string &strBuffer, BOOST_ASIO_MOVE_ARG(ReadHandler) handler)
 {
     return DoAsyncRead(boost::asio::buffer(strBuffer), handler);
 }
 
 template <typename ReadHandler>
-BOOST_ASIO_INITFN_RESULT_TYPE(ReadHandler, void (boost::system::error_code, std::size_t)) // Return type
-wxSerialPort::AsyncRead(wxCharBuffer& chBuffer, BOOST_ASIO_MOVE_ARG(ReadHandler) handler)
+BOOST_ASIO_INITFN_RESULT_TYPE(ReadHandler, void(boost::system::error_code, std::size_t)) // Return type
+wxSerialPort::AsyncRead(wxCharBuffer &chBuffer, BOOST_ASIO_MOVE_ARG(ReadHandler) handler)
 {
     return DoAsyncRead(boost::asio::buffer(chBuffer.data(), chBuffer.length()), handler);
 }
 
 template <typename ReadHandler>
-BOOST_ASIO_INITFN_RESULT_TYPE(ReadHandler, void (boost::system::error_code, std::size_t)) // Return type
+BOOST_ASIO_INITFN_RESULT_TYPE(ReadHandler, void(boost::system::error_code, std::size_t)) // Return type
 wxSerialPort::AsyncRead(void *pszBuffer, const std::size_t uiSize, BOOST_ASIO_MOVE_ARG(ReadHandler) handler)
 {
     return DoAsyncRead(boost::asio::buffer(pszBuffer, uiSize), handler);
 }
 
 template <typename type, typename ReadHandler>
-BOOST_ASIO_INITFN_RESULT_TYPE(ReadHandler, void (boost::system::error_code, std::size_t)) // Return type
-wxSerialPort::AsyncRead(std::vector<type>& vBuffer, BOOST_ASIO_MOVE_ARG(ReadHandler) handler)
+BOOST_ASIO_INITFN_RESULT_TYPE(ReadHandler, void(boost::system::error_code, std::size_t)) // Return type
+wxSerialPort::AsyncRead(std::vector<type> &vBuffer, BOOST_ASIO_MOVE_ARG(ReadHandler) handler)
 {
     return DoAsyncRead(boost::asio::buffer(vBuffer), handler);
 }
 
 template <typename type, std::size_t uiSize, typename ReadHandler>
-BOOST_ASIO_INITFN_RESULT_TYPE(ReadHandler, void (boost::system::error_code, std::size_t)) // Return type
-wxSerialPort::AsyncRead(std::array<type, uiSize>& arrBuffer, BOOST_ASIO_MOVE_ARG(ReadHandler) handler)
+BOOST_ASIO_INITFN_RESULT_TYPE(ReadHandler, void(boost::system::error_code, std::size_t)) // Return type
+wxSerialPort::AsyncRead(std::array<type, uiSize> &arrBuffer, BOOST_ASIO_MOVE_ARG(ReadHandler) handler)
 {
     return DoAsyncRead(boost::asio::buffer(arrBuffer), handler);
 }
@@ -840,44 +843,44 @@ wxSerialPort::AsyncRead(std::array<type, uiSize>& arrBuffer, BOOST_ASIO_MOVE_ARG
 
 // This helper function is intended for internal use by the class itself
 template <typename ReadHandler>
-BOOST_ASIO_INITFN_RESULT_TYPE(ReadHandler, void (boost::system::error_code, std::size_t)) // Return type
-wxSerialPort::DoAsyncRead(const boost::asio::mutable_buffer& buffer, BOOST_ASIO_MOVE_ARG(ReadHandler) handler, const int timeout)
+BOOST_ASIO_INITFN_RESULT_TYPE(ReadHandler, void(boost::system::error_code, std::size_t)) // Return type
+wxSerialPort::DoAsyncRead(const boost::asio::mutable_buffer &buffer, BOOST_ASIO_MOVE_ARG(ReadHandler) handler, const int timeout)
 {
     DoAsyncWaitThenCancelAsyncIO(timeout);
     return boost::asio::async_read(m_serialPort, buffer, handler);
 }
 
 template <typename ReadHandler>
-BOOST_ASIO_INITFN_RESULT_TYPE(ReadHandler, void (boost::system::error_code, std::size_t)) // Return type
-wxSerialPort::AsyncRead(std::string& strBuffer, BOOST_ASIO_MOVE_ARG(ReadHandler) handler, const int timeout)
+BOOST_ASIO_INITFN_RESULT_TYPE(ReadHandler, void(boost::system::error_code, std::size_t)) // Return type
+wxSerialPort::AsyncRead(std::string &strBuffer, BOOST_ASIO_MOVE_ARG(ReadHandler) handler, const int timeout)
 {
     return DoAsyncRead(boost::asio::buffer(strBuffer), handler, timeout);
 }
 
 template <typename ReadHandler>
-BOOST_ASIO_INITFN_RESULT_TYPE(ReadHandler, void (boost::system::error_code, std::size_t)) // Return type
-wxSerialPort::AsyncRead(wxCharBuffer& chBuffer, BOOST_ASIO_MOVE_ARG(ReadHandler) handler, const int timeout)
+BOOST_ASIO_INITFN_RESULT_TYPE(ReadHandler, void(boost::system::error_code, std::size_t)) // Return type
+wxSerialPort::AsyncRead(wxCharBuffer &chBuffer, BOOST_ASIO_MOVE_ARG(ReadHandler) handler, const int timeout)
 {
     return DoAsyncRead(boost::asio::buffer(chBuffer.data(), chBuffer.length()), handler, timeout);
 }
 
 template <typename ReadHandler>
-BOOST_ASIO_INITFN_RESULT_TYPE(ReadHandler, void (boost::system::error_code, std::size_t)) // Return type
+BOOST_ASIO_INITFN_RESULT_TYPE(ReadHandler, void(boost::system::error_code, std::size_t)) // Return type
 wxSerialPort::AsyncRead(void *pszBuffer, const std::size_t uiSize, BOOST_ASIO_MOVE_ARG(ReadHandler) handler, const int timeout)
 {
     return DoAsyncRead(boost::asio::buffer(pszBuffer, uiSize), handler, timeout);
 }
 
 template <typename type, typename ReadHandler>
-BOOST_ASIO_INITFN_RESULT_TYPE(ReadHandler, void (boost::system::error_code, std::size_t)) // Return type
-wxSerialPort::AsyncRead(std::vector<type>& vBuffer, BOOST_ASIO_MOVE_ARG(ReadHandler) handler, const int timeout)
+BOOST_ASIO_INITFN_RESULT_TYPE(ReadHandler, void(boost::system::error_code, std::size_t)) // Return type
+wxSerialPort::AsyncRead(std::vector<type> &vBuffer, BOOST_ASIO_MOVE_ARG(ReadHandler) handler, const int timeout)
 {
     return DoAsyncRead(boost::asio::buffer(vBuffer), handler, timeout);
 }
 
 template <typename type, std::size_t uiSize, typename ReadHandler>
-BOOST_ASIO_INITFN_RESULT_TYPE(ReadHandler, void (boost::system::error_code, std::size_t)) // Return type
-wxSerialPort::AsyncRead(std::array<type, uiSize>& arrBuffer, BOOST_ASIO_MOVE_ARG(ReadHandler) handler, const int timeout)
+BOOST_ASIO_INITFN_RESULT_TYPE(ReadHandler, void(boost::system::error_code, std::size_t)) // Return type
+wxSerialPort::AsyncRead(std::array<type, uiSize> &arrBuffer, BOOST_ASIO_MOVE_ARG(ReadHandler) handler, const int timeout)
 {
     return DoAsyncRead(boost::asio::buffer(arrBuffer), handler, timeout);
 }
@@ -888,50 +891,50 @@ wxSerialPort::AsyncRead(std::array<type, uiSize>& arrBuffer, BOOST_ASIO_MOVE_ARG
 
 // This helper function is intended for internal use by the class itself
 template <typename WriteHandler>
-BOOST_ASIO_INITFN_RESULT_TYPE(WriteHandler, void (boost::system::error_code, std::size_t)) // Return type
-wxSerialPort::DoAsyncWrite(const boost::asio::const_buffer& buffer, BOOST_ASIO_MOVE_ARG(WriteHandler) handler)
+BOOST_ASIO_INITFN_RESULT_TYPE(WriteHandler, void(boost::system::error_code, std::size_t)) // Return type
+wxSerialPort::DoAsyncWrite(const boost::asio::const_buffer &buffer, BOOST_ASIO_MOVE_ARG(WriteHandler) handler)
 {
     return boost::asio::async_write(m_serialPort, buffer, handler);
 }
 
 template <typename WriteHandler>
-BOOST_ASIO_INITFN_RESULT_TYPE(WriteHandler, void (boost::system::error_code, std::size_t)) // Return type
-wxSerialPort::AsyncWrite(const std::string& strBuffer, BOOST_ASIO_MOVE_ARG(WriteHandler) handler)
+BOOST_ASIO_INITFN_RESULT_TYPE(WriteHandler, void(boost::system::error_code, std::size_t)) // Return type
+wxSerialPort::AsyncWrite(const std::string &strBuffer, BOOST_ASIO_MOVE_ARG(WriteHandler) handler)
 {
     return DoWrite(boost::asio::buffer(strBuffer), handler);
 }
 
 template <typename WriteHandler>
-BOOST_ASIO_INITFN_RESULT_TYPE(WriteHandler, void (boost::system::error_code, std::size_t)) // Return type
-wxSerialPort::AsyncWrite(const wxString& strBuffer, BOOST_ASIO_MOVE_ARG(WriteHandler) handler)
+BOOST_ASIO_INITFN_RESULT_TYPE(WriteHandler, void(boost::system::error_code, std::size_t)) // Return type
+wxSerialPort::AsyncWrite(const wxString &strBuffer, BOOST_ASIO_MOVE_ARG(WriteHandler) handler)
 {
     return DoWrite(boost::asio::buffer(strBuffer.data(), strBuffer.size()), handler);
 }
 
 template <typename WriteHandler>
-BOOST_ASIO_INITFN_RESULT_TYPE(WriteHandler, void (boost::system::error_code, std::size_t)) // Return type
-wxSerialPort::AsyncWrite(const wxCharBuffer& chBuffer, BOOST_ASIO_MOVE_ARG(WriteHandler) handler)
+BOOST_ASIO_INITFN_RESULT_TYPE(WriteHandler, void(boost::system::error_code, std::size_t)) // Return type
+wxSerialPort::AsyncWrite(const wxCharBuffer &chBuffer, BOOST_ASIO_MOVE_ARG(WriteHandler) handler)
 {
     return DoWrite(boost::asio::buffer(chBuffer.data(), chBuffer.length()), handler);
 }
 
 template <typename WriteHandler>
-BOOST_ASIO_INITFN_RESULT_TYPE(WriteHandler, void (boost::system::error_code, std::size_t)) // Return type
+BOOST_ASIO_INITFN_RESULT_TYPE(WriteHandler, void(boost::system::error_code, std::size_t)) // Return type
 wxSerialPort::AsyncWrite(const void *pszBuffer, const std::size_t uiSize, BOOST_ASIO_MOVE_ARG(WriteHandler) handler)
 {
     return DoWrite(boost::asio::buffer(pszBuffer, uiSize), handler);
 }
 
 template <typename type, typename WriteHandler>
-BOOST_ASIO_INITFN_RESULT_TYPE(WriteHandler, void (boost::system::error_code, std::size_t)) // Return type
-wxSerialPort::AsyncWrite(const std::vector<type>& vBuffer, BOOST_ASIO_MOVE_ARG(WriteHandler) handler)
+BOOST_ASIO_INITFN_RESULT_TYPE(WriteHandler, void(boost::system::error_code, std::size_t)) // Return type
+wxSerialPort::AsyncWrite(const std::vector<type> &vBuffer, BOOST_ASIO_MOVE_ARG(WriteHandler) handler)
 {
     return DoWrite(boost::asio::buffer(vBuffer), handler);
 }
 
 template <typename type, std::size_t uiSize, typename WriteHandler>
-BOOST_ASIO_INITFN_RESULT_TYPE(WriteHandler, void (boost::system::error_code, std::size_t)) // Return type
-wxSerialPort::AsyncWrite(const std::array<type, uiSize>& arrBuffer, BOOST_ASIO_MOVE_ARG(WriteHandler) handler)
+BOOST_ASIO_INITFN_RESULT_TYPE(WriteHandler, void(boost::system::error_code, std::size_t)) // Return type
+wxSerialPort::AsyncWrite(const std::array<type, uiSize> &arrBuffer, BOOST_ASIO_MOVE_ARG(WriteHandler) handler)
 {
     return DoWrite(boost::asio::buffer(arrBuffer), handler);
 }
@@ -942,51 +945,51 @@ wxSerialPort::AsyncWrite(const std::array<type, uiSize>& arrBuffer, BOOST_ASIO_M
 
 // This helper function is intended for internal use by the class itself
 template <typename WriteHandler>
-BOOST_ASIO_INITFN_RESULT_TYPE(WriteHandler, void (boost::system::error_code, std::size_t)) // Return type
-wxSerialPort::DoAsyncWrite(const boost::asio::const_buffer& buffer, BOOST_ASIO_MOVE_ARG(WriteHandler) handler, const int timeout)
+BOOST_ASIO_INITFN_RESULT_TYPE(WriteHandler, void(boost::system::error_code, std::size_t)) // Return type
+wxSerialPort::DoAsyncWrite(const boost::asio::const_buffer &buffer, BOOST_ASIO_MOVE_ARG(WriteHandler) handler, const int timeout)
 {
     DoAsyncWaitThenCancelAsyncIO(timeout);
     return boost::asio::async_write(m_serialPort, buffer, handler);
 }
 
 template <typename WriteHandler>
-BOOST_ASIO_INITFN_RESULT_TYPE(WriteHandler, void (boost::system::error_code, std::size_t)) // Return type
-wxSerialPort::AsyncWrite(const std::string& strBuffer, BOOST_ASIO_MOVE_ARG(WriteHandler) handler, const int timeout)
+BOOST_ASIO_INITFN_RESULT_TYPE(WriteHandler, void(boost::system::error_code, std::size_t)) // Return type
+wxSerialPort::AsyncWrite(const std::string &strBuffer, BOOST_ASIO_MOVE_ARG(WriteHandler) handler, const int timeout)
 {
     return DoWrite(boost::asio::buffer(strBuffer), handler, timeout);
 }
 
 template <typename WriteHandler>
-BOOST_ASIO_INITFN_RESULT_TYPE(WriteHandler, void (boost::system::error_code, std::size_t)) // Return type
-wxSerialPort::AsyncWrite(const wxString& strBuffer, BOOST_ASIO_MOVE_ARG(WriteHandler) handler, const int timeout)
+BOOST_ASIO_INITFN_RESULT_TYPE(WriteHandler, void(boost::system::error_code, std::size_t)) // Return type
+wxSerialPort::AsyncWrite(const wxString &strBuffer, BOOST_ASIO_MOVE_ARG(WriteHandler) handler, const int timeout)
 {
     return DoWrite(boost::asio::buffer(strBuffer.data(), strBuffer.size()), handler, timeout);
 }
 
 template <typename WriteHandler>
-BOOST_ASIO_INITFN_RESULT_TYPE(WriteHandler, void (boost::system::error_code, std::size_t)) // Return type
-wxSerialPort::AsyncWrite(const wxCharBuffer& chBuffer, BOOST_ASIO_MOVE_ARG(WriteHandler) handler, const int timeout)
+BOOST_ASIO_INITFN_RESULT_TYPE(WriteHandler, void(boost::system::error_code, std::size_t)) // Return type
+wxSerialPort::AsyncWrite(const wxCharBuffer &chBuffer, BOOST_ASIO_MOVE_ARG(WriteHandler) handler, const int timeout)
 {
     return DoWrite(boost::asio::buffer(chBuffer.data(), chBuffer.length()), handler, timeout);
 }
 
 template <typename WriteHandler>
-BOOST_ASIO_INITFN_RESULT_TYPE(WriteHandler, void (boost::system::error_code, std::size_t)) // Return type
+BOOST_ASIO_INITFN_RESULT_TYPE(WriteHandler, void(boost::system::error_code, std::size_t)) // Return type
 wxSerialPort::AsyncWrite(const void *pszBuffer, const std::size_t uiSize, BOOST_ASIO_MOVE_ARG(WriteHandler) handler, const int timeout)
 {
     return DoWrite(boost::asio::buffer(pszBuffer, uiSize), handler, timeout);
 }
 
 template <typename type, typename WriteHandler>
-BOOST_ASIO_INITFN_RESULT_TYPE(WriteHandler, void (boost::system::error_code, std::size_t)) // Return type
-wxSerialPort::AsyncWrite(const std::vector<type>& vBuffer, BOOST_ASIO_MOVE_ARG(WriteHandler) handler, const int timeout)
+BOOST_ASIO_INITFN_RESULT_TYPE(WriteHandler, void(boost::system::error_code, std::size_t)) // Return type
+wxSerialPort::AsyncWrite(const std::vector<type> &vBuffer, BOOST_ASIO_MOVE_ARG(WriteHandler) handler, const int timeout)
 {
     return DoWrite(boost::asio::buffer(vBuffer), handler, timeout);
 }
 
 template <typename type, std::size_t uiSize, typename WriteHandler>
-BOOST_ASIO_INITFN_RESULT_TYPE(WriteHandler, void (boost::system::error_code, std::size_t)) // Return type
-wxSerialPort::AsyncWrite(const std::array<type, uiSize>& arrBuffer, BOOST_ASIO_MOVE_ARG(WriteHandler) handler, const int timeout)
+BOOST_ASIO_INITFN_RESULT_TYPE(WriteHandler, void(boost::system::error_code, std::size_t)) // Return type
+wxSerialPort::AsyncWrite(const std::array<type, uiSize> &arrBuffer, BOOST_ASIO_MOVE_ARG(WriteHandler) handler, const int timeout)
 {
     return DoWrite(boost::asio::buffer(arrBuffer), handler, timeout);
 }
@@ -998,24 +1001,21 @@ wxSerialPort::AsyncWrite(const std::array<type, uiSize>& arrBuffer, BOOST_ASIO_M
 // -------------------------------------------------------------------------------------------------------------------------------
 
 // This helper function is intended for internal use by the class itself
-std::size_t wxSerialPort::DoReadUntil(const boost::asio::mutable_buffer& buffer, const boost::asio::const_buffer& delim)
+std::size_t wxSerialPort::DoReadUntil(const boost::asio::mutable_buffer &buffer, const boost::asio::const_buffer &delim)
 {
     boost::system::error_code error;
-    std::size_t ret = boost::asio::read(m_serialPort, buffer,
-    [&](const boost::system::error_code& error, std::size_t bytes_transferred) -> std::size_t
-    {
-        return DoCompletionCondition(buffer, delim, error, bytes_transferred);
-    }, error);
+    std::size_t ret = boost::asio::read(m_serialPort, buffer, [&](const boost::system::error_code &error, std::size_t bytes_transferred) -> std::size_t
+                                        { return DoCompletionCondition(buffer, delim, error, bytes_transferred); }, error);
     DoSetLastError(error);
     return ret;
 }
 
-std::size_t wxSerialPort::ReadUntil(std::string& strBuffer, const std::string& strDelim)
+std::size_t wxSerialPort::ReadUntil(std::string &strBuffer, const std::string &strDelim)
 {
     return DoReadUntil(boost::asio::buffer(strBuffer), boost::asio::buffer(strDelim));
 }
 
-std::size_t wxSerialPort::ReadUntil(wxCharBuffer& chBuffer, const wxCharBuffer& chDelim)
+std::size_t wxSerialPort::ReadUntil(wxCharBuffer &chBuffer, const wxCharBuffer &chDelim)
 {
     return DoReadUntil(boost::asio::buffer(chBuffer.data(), chBuffer.length()), boost::asio::buffer(chDelim.data(), chDelim.length()));
 }
@@ -1026,13 +1026,13 @@ std::size_t wxSerialPort::ReadUntil(void *pszBuffer, const std::size_t uiSize1, 
 }
 
 template <typename type>
-std::size_t wxSerialPort::ReadUntil(std::vector<type>& vBuffer, const std::vector<type>& vDelim)
+std::size_t wxSerialPort::ReadUntil(std::vector<type> &vBuffer, const std::vector<type> &vDelim)
 {
     return DoReadUntil(boost::asio::buffer(vBuffer), boost::asio::buffer(vDelim));
 }
 
 template <typename type, std::size_t uiSize1, std::size_t uiSize2>
-std::size_t wxSerialPort::ReadUntil(std::array<type, uiSize1>& arrBuffer, const std::array<type, uiSize2>& arrDelim)
+std::size_t wxSerialPort::ReadUntil(std::array<type, uiSize1> &arrBuffer, const std::array<type, uiSize2> &arrDelim)
 {
     return DoReadUntil(boost::asio::buffer(arrBuffer), boost::asio::buffer(arrDelim));
 }
@@ -1042,39 +1042,36 @@ std::size_t wxSerialPort::ReadUntil(std::array<type, uiSize1>& arrBuffer, const 
 // -------------------------------------------------------------------------------------------------------------------------------
 
 // This helper function is intended for internal use by the class itself
-std::size_t wxSerialPort::DoReadUntil(const boost::asio::mutable_buffer& buffer, const boost::asio::const_buffer& delim, const int timeout)
+std::size_t wxSerialPort::DoReadUntil(const boost::asio::mutable_buffer &buffer, const boost::asio::const_buffer &delim, const int timeout)
 {
     std::size_t bytes_read = 0;
     m_io_context.restart();
     DoAsyncWaitThenCancelAsyncIO(timeout);
 
-    boost::asio::async_read(m_serialPort, buffer,
-    [&](const boost::system::error_code& error, std::size_t bytes_transferred) -> std::size_t
-    {
-        return DoCompletionCondition(buffer, delim, error, bytes_transferred);
-    },
-    /*std::bind(&wxSerialPort::AsyncReadUntilHandler, this, std::placeholders::_1, std::placeholders::_2)*/
-    [&](const boost::system::error_code& error, std::size_t bytes_transferred)
-    {
+    boost::asio::async_read(m_serialPort, buffer, [&](const boost::system::error_code &error, std::size_t bytes_transferred) -> std::size_t
+                            { return DoCompletionCondition(buffer, delim, error, bytes_transferred); },
+                            /*std::bind(&wxSerialPort::AsyncReadUntilHandler, this, std::placeholders::_1, std::placeholders::_2)*/
+                            [&](const boost::system::error_code &error, std::size_t bytes_transferred)
+                            {
         // ReadUntil operation was not aborted
         if (!error) // != boost::asio::error::operation_aborted
             m_timer.cancel();
 
         bytes_read = bytes_transferred;
-        DoSetLastError(error);
-    });
+        DoSetLastError(error); });
 
-    std::thread thread1([this] { m_io_context.run(); });
+    std::thread thread1([this]
+                        { m_io_context.run(); });
     thread1.join();
     return bytes_read;
 }
 
-std::size_t wxSerialPort::ReadUntil(std::string& strBuffer, const std::string& strDelim, const int timeout)
+std::size_t wxSerialPort::ReadUntil(std::string &strBuffer, const std::string &strDelim, const int timeout)
 {
     return DoReadUntil(boost::asio::buffer(strBuffer), boost::asio::buffer(strDelim), timeout);
 }
 
-std::size_t wxSerialPort::ReadUntil(wxCharBuffer& chBuffer, const wxCharBuffer& chDelim, const int timeout)
+std::size_t wxSerialPort::ReadUntil(wxCharBuffer &chBuffer, const wxCharBuffer &chDelim, const int timeout)
 {
     return DoReadUntil(boost::asio::buffer(chBuffer.data(), chBuffer.length()), boost::asio::buffer(chDelim.data(), chDelim.length()), timeout);
 }
@@ -1085,13 +1082,13 @@ std::size_t wxSerialPort::ReadUntil(void *pszBuffer, const std::size_t uiSize1, 
 }
 
 template <typename type>
-std::size_t wxSerialPort::ReadUntil(std::vector<type>& vBuffer, const std::vector<type>& vDelim, const int timeout)
+std::size_t wxSerialPort::ReadUntil(std::vector<type> &vBuffer, const std::vector<type> &vDelim, const int timeout)
 {
     return DoReadUntil(boost::asio::buffer(vBuffer), boost::asio::buffer(vDelim), timeout);
 }
 
 template <typename type, std::size_t uiSize1, std::size_t uiSize2>
-std::size_t wxSerialPort::ReadUntil(std::array<type, uiSize1>& arrBuffer, const std::array<type, uiSize2>& arrDelim, const int timeout)
+std::size_t wxSerialPort::ReadUntil(std::array<type, uiSize1> &arrBuffer, const std::array<type, uiSize2> &arrDelim, const int timeout)
 {
     return DoReadUntil(boost::asio::buffer(arrBuffer), boost::asio::buffer(arrDelim), timeout);
 }
@@ -1104,47 +1101,44 @@ std::size_t wxSerialPort::ReadUntil(std::array<type, uiSize1>& arrBuffer, const 
 
 // This helper function is intended for internal use by the class itself
 template <typename ReadUntilHandler>
-BOOST_ASIO_INITFN_RESULT_TYPE(ReadUntilHandler, void (boost::system::error_code, std::size_t)) // Return type
-wxSerialPort::DoAsyncReadUntil(const boost::asio::mutable_buffer& buffer, const boost::asio::const_buffer& delim, BOOST_ASIO_MOVE_ARG(ReadUntilHandler) handler)
+BOOST_ASIO_INITFN_RESULT_TYPE(ReadUntilHandler, void(boost::system::error_code, std::size_t)) // Return type
+wxSerialPort::DoAsyncReadUntil(const boost::asio::mutable_buffer &buffer, const boost::asio::const_buffer &delim, BOOST_ASIO_MOVE_ARG(ReadUntilHandler) handler)
 {
-    return boost::asio::async_read(m_serialPort, buffer,
-    [&](const boost::system::error_code& error, std::size_t bytes_transferred) -> std::size_t
-    {
-        return DoCompletionCondition(buffer, delim, error, bytes_transferred);
-    }, handler);
+    return boost::asio::async_read(m_serialPort, buffer, [&](const boost::system::error_code &error, std::size_t bytes_transferred) -> std::size_t
+                                   { return DoCompletionCondition(buffer, delim, error, bytes_transferred); }, handler);
 }
 
 template <typename ReadUntilHandler>
-BOOST_ASIO_INITFN_RESULT_TYPE(ReadUntilHandler, void (boost::system::error_code, std::size_t)) // Return type
-wxSerialPort::AsyncReadUntil(std::string& strBuffer, const std::string& strDelim, BOOST_ASIO_MOVE_ARG(ReadUntilHandler) handler)
+BOOST_ASIO_INITFN_RESULT_TYPE(ReadUntilHandler, void(boost::system::error_code, std::size_t)) // Return type
+wxSerialPort::AsyncReadUntil(std::string &strBuffer, const std::string &strDelim, BOOST_ASIO_MOVE_ARG(ReadUntilHandler) handler)
 {
     return DoAsyncReadUntil(boost::asio::buffer(strBuffer), boost::asio::buffer(strDelim), handler);
 }
 
 template <typename ReadUntilHandler>
-BOOST_ASIO_INITFN_RESULT_TYPE(ReadUntilHandler, void (boost::system::error_code, std::size_t)) // Return type
-wxSerialPort::AsyncReadUntil(wxCharBuffer& chBuffer, const wxCharBuffer& chDelim, BOOST_ASIO_MOVE_ARG(ReadUntilHandler) handler)
+BOOST_ASIO_INITFN_RESULT_TYPE(ReadUntilHandler, void(boost::system::error_code, std::size_t)) // Return type
+wxSerialPort::AsyncReadUntil(wxCharBuffer &chBuffer, const wxCharBuffer &chDelim, BOOST_ASIO_MOVE_ARG(ReadUntilHandler) handler)
 {
     return DoAsyncReadUntil(boost::asio::buffer(chBuffer.data(), chBuffer.length()), boost::asio::buffer(chDelim.data(), chDelim.length()), handler);
 }
 
 template <typename ReadUntilHandler>
-BOOST_ASIO_INITFN_RESULT_TYPE(ReadUntilHandler, void (boost::system::error_code, std::size_t)) // Return type
+BOOST_ASIO_INITFN_RESULT_TYPE(ReadUntilHandler, void(boost::system::error_code, std::size_t)) // Return type
 wxSerialPort::AsyncReadUntil(void *pszBuffer, const std::size_t uiSize1, const void *pszDelim, const std::size_t uiSize2, BOOST_ASIO_MOVE_ARG(ReadUntilHandler) handler)
 {
     return DoAsyncReadUntil(boost::asio::buffer(pszBuffer, uiSize1), boost::asio::buffer(pszDelim, uiSize2), handler);
 }
 
 template <typename type, typename ReadUntilHandler>
-BOOST_ASIO_INITFN_RESULT_TYPE(ReadUntilHandler, void (boost::system::error_code, std::size_t)) // Return type
-wxSerialPort::AsyncReadUntil(std::vector<type>& vBuffer, const std::vector<type>& vDelim, BOOST_ASIO_MOVE_ARG(ReadUntilHandler) handler)
+BOOST_ASIO_INITFN_RESULT_TYPE(ReadUntilHandler, void(boost::system::error_code, std::size_t)) // Return type
+wxSerialPort::AsyncReadUntil(std::vector<type> &vBuffer, const std::vector<type> &vDelim, BOOST_ASIO_MOVE_ARG(ReadUntilHandler) handler)
 {
     return DoAsyncReadUntil(boost::asio::buffer(vBuffer), boost::asio::buffer(vDelim), handler);
 }
 
 template <typename type, std::size_t uiSize1, std::size_t uiSize2, typename ReadUntilHandler>
-BOOST_ASIO_INITFN_RESULT_TYPE(ReadUntilHandler, void (boost::system::error_code, std::size_t)) // Return type
-wxSerialPort::AsyncReadUntil(std::array<type, uiSize1>& arrBuffer, const std::array<type, uiSize2>& arrDelim, BOOST_ASIO_MOVE_ARG(ReadUntilHandler) handler)
+BOOST_ASIO_INITFN_RESULT_TYPE(ReadUntilHandler, void(boost::system::error_code, std::size_t)) // Return type
+wxSerialPort::AsyncReadUntil(std::array<type, uiSize1> &arrBuffer, const std::array<type, uiSize2> &arrDelim, BOOST_ASIO_MOVE_ARG(ReadUntilHandler) handler)
 {
     return DoAsyncReadUntil(boost::asio::buffer(arrBuffer), boost::asio::buffer(arrDelim), handler);
 }
@@ -1155,48 +1149,45 @@ wxSerialPort::AsyncReadUntil(std::array<type, uiSize1>& arrBuffer, const std::ar
 
 // This helper function is intended for internal use by the class itself
 template <typename ReadUntilHandler>
-BOOST_ASIO_INITFN_RESULT_TYPE(ReadUntilHandler, void (boost::system::error_code, std::size_t)) // Return type
-wxSerialPort::DoAsyncReadUntil(const boost::asio::mutable_buffer& buffer, const boost::asio::const_buffer& delim, BOOST_ASIO_MOVE_ARG(ReadUntilHandler) handler, const int timeout)
+BOOST_ASIO_INITFN_RESULT_TYPE(ReadUntilHandler, void(boost::system::error_code, std::size_t)) // Return type
+wxSerialPort::DoAsyncReadUntil(const boost::asio::mutable_buffer &buffer, const boost::asio::const_buffer &delim, BOOST_ASIO_MOVE_ARG(ReadUntilHandler) handler, const int timeout)
 {
     DoAsyncWaitThenCancelAsyncIO(timeout);
-    return boost::asio::async_read(m_serialPort, buffer,
-    [&](const boost::system::error_code& error, std::size_t bytes_transferred) -> std::size_t
-    {
-        return DoCompletionCondition(buffer, delim, error, bytes_transferred);
-    }, handler);
+    return boost::asio::async_read(m_serialPort, buffer, [&](const boost::system::error_code &error, std::size_t bytes_transferred) -> std::size_t
+                                   { return DoCompletionCondition(buffer, delim, error, bytes_transferred); }, handler);
 }
 
 template <typename ReadUntilHandler>
-BOOST_ASIO_INITFN_RESULT_TYPE(ReadUntilHandler, void (boost::system::error_code, std::size_t)) // Return type
-wxSerialPort::AsyncReadUntil(std::string& strBuffer, const std::string& strDelim, BOOST_ASIO_MOVE_ARG(ReadUntilHandler) handler, const int timeout)
+BOOST_ASIO_INITFN_RESULT_TYPE(ReadUntilHandler, void(boost::system::error_code, std::size_t)) // Return type
+wxSerialPort::AsyncReadUntil(std::string &strBuffer, const std::string &strDelim, BOOST_ASIO_MOVE_ARG(ReadUntilHandler) handler, const int timeout)
 {
     return DoAsyncReadUntil(boost::asio::buffer(strBuffer), boost::asio::buffer(strDelim), handler, timeout);
 }
 
 template <typename ReadUntilHandler>
-BOOST_ASIO_INITFN_RESULT_TYPE(ReadUntilHandler, void (boost::system::error_code, std::size_t)) // Return type
-wxSerialPort::AsyncReadUntil(wxCharBuffer& chBuffer, const wxCharBuffer& chDelim, BOOST_ASIO_MOVE_ARG(ReadUntilHandler) handler, const int timeout)
+BOOST_ASIO_INITFN_RESULT_TYPE(ReadUntilHandler, void(boost::system::error_code, std::size_t)) // Return type
+wxSerialPort::AsyncReadUntil(wxCharBuffer &chBuffer, const wxCharBuffer &chDelim, BOOST_ASIO_MOVE_ARG(ReadUntilHandler) handler, const int timeout)
 {
     return DoAsyncReadUntil(boost::asio::buffer(chBuffer.data(), chBuffer.length()), boost::asio::buffer(chDelim.data(), chDelim.length()), handler, timeout);
 }
 
 template <typename ReadUntilHandler>
-BOOST_ASIO_INITFN_RESULT_TYPE(ReadUntilHandler, void (boost::system::error_code, std::size_t)) // Return type
+BOOST_ASIO_INITFN_RESULT_TYPE(ReadUntilHandler, void(boost::system::error_code, std::size_t)) // Return type
 wxSerialPort::AsyncReadUntil(void *pszBuffer, const std::size_t uiSize1, const void *pszDelim, const std::size_t uiSize2, BOOST_ASIO_MOVE_ARG(ReadUntilHandler) handler, const int timeout)
 {
     return DoAsyncReadUntil(boost::asio::buffer(pszBuffer, uiSize1), boost::asio::buffer(pszDelim, uiSize2), handler, timeout);
 }
 
 template <typename type, typename ReadUntilHandler>
-BOOST_ASIO_INITFN_RESULT_TYPE(ReadUntilHandler, void (boost::system::error_code, std::size_t)) // Return type
-wxSerialPort::AsyncReadUntil(std::vector<type>& vBuffer, const std::vector<type>& vDelim, BOOST_ASIO_MOVE_ARG(ReadUntilHandler) handler, const int timeout)
+BOOST_ASIO_INITFN_RESULT_TYPE(ReadUntilHandler, void(boost::system::error_code, std::size_t)) // Return type
+wxSerialPort::AsyncReadUntil(std::vector<type> &vBuffer, const std::vector<type> &vDelim, BOOST_ASIO_MOVE_ARG(ReadUntilHandler) handler, const int timeout)
 {
     return DoAsyncReadUntil(boost::asio::buffer(vBuffer), boost::asio::buffer(vDelim), handler, timeout);
 }
 
 template <typename type, std::size_t uiSize1, std::size_t uiSize2, typename ReadUntilHandler>
-BOOST_ASIO_INITFN_RESULT_TYPE(ReadUntilHandler, void (boost::system::error_code, std::size_t)) // Return type
-wxSerialPort::AsyncReadUntil(std::array<type, uiSize1>& arrBuffer, const std::array<type, uiSize2>& arrDelim, BOOST_ASIO_MOVE_ARG(ReadUntilHandler) handler, const int timeout)
+BOOST_ASIO_INITFN_RESULT_TYPE(ReadUntilHandler, void(boost::system::error_code, std::size_t)) // Return type
+wxSerialPort::AsyncReadUntil(std::array<type, uiSize1> &arrBuffer, const std::array<type, uiSize2> &arrDelim, BOOST_ASIO_MOVE_ARG(ReadUntilHandler) handler, const int timeout)
 {
     return DoAsyncReadUntil(boost::asio::buffer(arrBuffer), boost::asio::buffer(arrDelim), handler, timeout);
 }
@@ -1204,15 +1195,15 @@ wxSerialPort::AsyncReadUntil(std::array<type, uiSize1>& arrBuffer, const std::ar
 // ===============================================================================================================================
 
 // This helper function is intended for internal use by the class itself
-std::size_t wxSerialPort::DoCompletionCondition(const boost::asio::mutable_buffer& buffer, const boost::asio::const_buffer& delim,
-                                                const boost::system::error_code& error, const std::size_t bytes_transferred) const
+std::size_t wxSerialPort::DoCompletionCondition(const boost::asio::mutable_buffer &buffer, const boost::asio::const_buffer &delim,
+                                                const boost::system::error_code &error, const std::size_t bytes_transferred) const
 {
     // Look for a match
     auto it = std::search(boost::asio::buffers_begin(buffer), boost::asio::buffers_begin(buffer) + bytes_transferred,
                           boost::asio::buffers_begin(delim), boost::asio::buffers_end(delim));
 
     return (!!error || it != (boost::asio::buffers_begin(buffer) + bytes_transferred)) ? 0
-    : boost::asio::detail::default_max_transfer_size_t::default_max_transfer_size;
+                                                                                       : boost::asio::detail::default_max_transfer_size_t::default_max_transfer_size;
 }
 
 BOOST_ASIO_SYNC_OP_VOID wxSerialPort::Cancel()
@@ -1236,7 +1227,7 @@ boost::asio::serial_port::executor_type wxSerialPort::GetExecutor() BOOST_ASIO_N
     return m_serialPort.get_executor();
 }
 
-BOOST_ASIO_SYNC_OP_VOID wxSerialPort::GetOption(BaudRate& option)
+BOOST_ASIO_SYNC_OP_VOID wxSerialPort::GetOption(BaudRate &option)
 {
     boost::asio::serial_port_base::baud_rate baudrate;
     boost::system::error_code error;
@@ -1246,7 +1237,7 @@ BOOST_ASIO_SYNC_OP_VOID wxSerialPort::GetOption(BaudRate& option)
     return error;
 }
 
-BOOST_ASIO_SYNC_OP_VOID wxSerialPort::GetOption(DataBits& option)
+BOOST_ASIO_SYNC_OP_VOID wxSerialPort::GetOption(DataBits &option)
 {
     boost::asio::serial_port_base::character_size databits;
     boost::system::error_code error;
@@ -1256,7 +1247,7 @@ BOOST_ASIO_SYNC_OP_VOID wxSerialPort::GetOption(DataBits& option)
     return error;
 }
 
-BOOST_ASIO_SYNC_OP_VOID wxSerialPort::GetOption(FlowControl& option)
+BOOST_ASIO_SYNC_OP_VOID wxSerialPort::GetOption(FlowControl &option)
 {
     boost::asio::serial_port_base::flow_control flowcontrol;
     boost::system::error_code error;
@@ -1266,7 +1257,7 @@ BOOST_ASIO_SYNC_OP_VOID wxSerialPort::GetOption(FlowControl& option)
     return error;
 }
 
-BOOST_ASIO_SYNC_OP_VOID wxSerialPort::GetOption(Parity& option)
+BOOST_ASIO_SYNC_OP_VOID wxSerialPort::GetOption(Parity &option)
 {
     boost::asio::serial_port_base::parity parity;
     boost::system::error_code error;
@@ -1276,7 +1267,7 @@ BOOST_ASIO_SYNC_OP_VOID wxSerialPort::GetOption(Parity& option)
     return error;
 }
 
-BOOST_ASIO_SYNC_OP_VOID wxSerialPort::GetOption(StopBits& option)
+BOOST_ASIO_SYNC_OP_VOID wxSerialPort::GetOption(StopBits &option)
 {
     boost::asio::serial_port_base::stop_bits stopbits;
     boost::system::error_code error;
@@ -1336,27 +1327,27 @@ BOOST_ASIO_SYNC_OP_VOID wxSerialPort::SetOption(const StopBits option)
     return error;
 }
 
-BOOST_ASIO_SYNC_OP_VOID wxSerialPort::GetBaudRate(BaudRate& baudrate)
+BOOST_ASIO_SYNC_OP_VOID wxSerialPort::GetBaudRate(BaudRate &baudrate)
 {
     return GetOption(baudrate);
 }
 
-BOOST_ASIO_SYNC_OP_VOID wxSerialPort::GetDataBits(DataBits& databits)
+BOOST_ASIO_SYNC_OP_VOID wxSerialPort::GetDataBits(DataBits &databits)
 {
     return GetOption(databits);
 }
 
-BOOST_ASIO_SYNC_OP_VOID wxSerialPort::GetFlowControl(FlowControl& flowcontrol)
+BOOST_ASIO_SYNC_OP_VOID wxSerialPort::GetFlowControl(FlowControl &flowcontrol)
 {
     return GetOption(flowcontrol);
 }
 
-BOOST_ASIO_SYNC_OP_VOID wxSerialPort::GetParity(Parity& parity)
+BOOST_ASIO_SYNC_OP_VOID wxSerialPort::GetParity(Parity &parity)
 {
     return GetOption(parity);
 }
 
-BOOST_ASIO_SYNC_OP_VOID wxSerialPort::GetStopBits(StopBits& stopbits)
+BOOST_ASIO_SYNC_OP_VOID wxSerialPort::GetStopBits(StopBits &stopbits)
 {
     return GetOption(stopbits);
 }
@@ -1396,7 +1387,7 @@ boost::asio::serial_port::native_handle_type wxSerialPort::GetNativeHandle()
     return m_serialPort.native_handle();
 }
 
-BOOST_ASIO_SYNC_OP_VOID wxSerialPort::Open(const std::string& strDevice)
+BOOST_ASIO_SYNC_OP_VOID wxSerialPort::Open(const std::string &strDevice)
 {
     m_strPortName = strDevice;
 
@@ -1406,14 +1397,14 @@ BOOST_ASIO_SYNC_OP_VOID wxSerialPort::Open(const std::string& strDevice)
     return error;
 }
 
-BOOST_ASIO_SYNC_OP_VOID wxSerialPort::Open(const wxString& strDevice)
+BOOST_ASIO_SYNC_OP_VOID wxSerialPort::Open(const wxString &strDevice)
 {
     return Open(strDevice.ToStdString());
 }
 
 BOOST_ASIO_SYNC_OP_VOID wxSerialPort::Open(const char *pszDevice)
 {
-    return Open(pszDevice);
+    return Open(std::string(pszDevice));
 }
 
 BOOST_ASIO_SYNC_OP_VOID wxSerialPort::ReOpen()
@@ -1426,7 +1417,7 @@ BOOST_ASIO_SYNC_OP_VOID wxSerialPort::SendBreak()
     boost::system::error_code error;
 #ifdef __WXMSW__
     std::thread thread1([&]
-    {
+                        {
     if (!::SetCommBreak(m_serialPort.native_handle()))
     {
         //wxLogError(wxS("SetCommBreak() failed!"));
@@ -1442,10 +1433,9 @@ BOOST_ASIO_SYNC_OP_VOID wxSerialPort::SendBreak()
         //wxLogError(wxS("ClearCommBreak() failed!"));
         error = boost::system::error_code(::GetLastError(), boost::asio::error::get_system_category());
         //return;
-    }
-    });
+    } });
     thread1.join();
-#else // !__WXMSW__
+#else  // !__WXMSW__
     m_serialPort.send_break(error);
 #endif // __WXMSW__
     DoSetLastError(error);
@@ -1458,7 +1448,7 @@ BOOST_ASIO_SYNC_OP_VOID wxSerialPort::Wait(const int timeout)
 }
 
 template <typename WaitHandler>
-BOOST_ASIO_INITFN_RESULT_TYPE(WaitHandler, void (boost::system::error_code)) // Return type
+BOOST_ASIO_INITFN_RESULT_TYPE(WaitHandler, void(boost::system::error_code)) // Return type
 wxSerialPort::AsyncWait(WaitHandler handler, const int timeout)
 {
     DoSetTimeout(timeout);
@@ -1479,7 +1469,7 @@ BOOST_ASIO_SYNC_OP_VOID wxSerialPort::FlushBuffers(const Buffers buffers)
     wxASSERT(buffers >= buf_In && buffers <= buf_In_Out);
 
     boost::system::error_code error;
-    //std::thread thread1([&]
+    // std::thread thread1([&]
     //{
 #ifdef __WXMSW__
     DWORD dwFlags = 0;
@@ -1492,11 +1482,11 @@ BOOST_ASIO_SYNC_OP_VOID wxSerialPort::FlushBuffers(const Buffers buffers)
 
     if (!::PurgeComm(m_serialPort.native_handle(), dwFlags))
     {
-        //wxLogError(wxS("PurgeComm() failed!"));
+        // wxLogError(wxS("PurgeComm() failed!"));
         error = boost::system::error_code(::GetLastError(), boost::asio::error::get_system_category());
-        //return;
+        // return;
     }
-#else // !__WXMSW__
+#else  // !__WXMSW__
     int flags = 0;
 
     if (buffers == buf_In_Out)
@@ -1508,13 +1498,13 @@ BOOST_ASIO_SYNC_OP_VOID wxSerialPort::FlushBuffers(const Buffers buffers)
 
     if (tcflush(m_serialPort.native_handle(), flags) == -1)
     {
-        //wxLogError(wxS("tcflush() failed!"));
+        // wxLogError(wxS("tcflush() failed!"));
         error = boost::system::error_code(errno, boost::asio::error::get_system_category());
-        //return;
+        // return;
     }
 #endif // __WXMSW__
     //});
-    //thread1.join();
+    // thread1.join();
     DoSetLastError(error);
     return error;
 }
@@ -1527,18 +1517,17 @@ BOOST_ASIO_SYNC_OP_VOID wxSerialPort::WaitForBuffers(const Buffers buffers, cons
     boost::system::error_code error;
     m_io_context.restart();
 
-    m_timer.async_wait([&](const boost::system::error_code& error)
-    {
+    m_timer.async_wait([&](const boost::system::error_code &error)
+                       {
         // Timed out
         if (!error) // != boost::asio::error::operation_aborted
         {
             m_io_context.stop();
             DoSetLastError(boost::asio::error::timed_out);
-        }
-    });
+        } });
 
     boost::asio::post(m_io_context, [&]
-    {
+                      {
     for (;;)
     {
         // Have we timed out already?
@@ -1584,10 +1573,10 @@ BOOST_ASIO_SYNC_OP_VOID wxSerialPort::WaitForBuffers(const Buffers buffers, cons
         }
 
         std::this_thread::yield();
-    }
-    });
+    } });
 
-    std::thread thread1([this] { m_io_context.run(); });
+    std::thread thread1([this]
+                        { m_io_context.run(); });
     thread1.join();
     DoSetLastError(error);
     return error;
@@ -1640,16 +1629,16 @@ void wxSerialPort::DoAsyncWaitThenCancelAsyncIO(const int timeout)
     DoSetTimeout(timeout);
 
     m_timer.async_wait(/*std::bind(&wxSerialPort::AsyncWaitHandler, this, std::placeholders::_1)*/
-    [this](const boost::system::error_code& error)
-    {
-        // Timed out
-        if (!error) // != boost::asio::error::operation_aborted
-        {
-            boost::system::error_code error;
-            m_serialPort.cancel(error);
-            DoSetLastError(boost::asio::error::timed_out);
-        }
-    });
+                       [this](const boost::system::error_code &error)
+                       {
+                           // Timed out
+                           if (!error) // != boost::asio::error::operation_aborted
+                           {
+                               boost::system::error_code error;
+                               m_serialPort.cancel(error);
+                               DoSetLastError(boost::asio::error::timed_out);
+                           }
+                       });
 }
 
 // This helper function is intended for internal use by the class itself
@@ -1657,19 +1646,18 @@ void wxSerialPort::DoAsyncWaitThenStopAsyncIO(const int timeout)
 {
     DoSetTimeout(timeout);
 
-    m_timer.async_wait([this](const boost::system::error_code& error)
-    {
+    m_timer.async_wait([this](const boost::system::error_code &error)
+                       {
         // Timed out
         if (!error) // != boost::asio::error::operation_aborted
         {
             m_io_context.stop();
             DoSetLastError(boost::asio::error::timed_out);
-        }
-    });
+        } });
 }
 
 // This helper function is intended for internal use by the class itself
-void wxSerialPort::DoSetLastError(const boost::system::error_code& error)
+void wxSerialPort::DoSetLastError(const boost::system::error_code &error)
 {
     wxCriticalSectionLocker lock(m_csLastError);
     m_last_error = error;
@@ -1677,7 +1665,7 @@ void wxSerialPort::DoSetLastError(const boost::system::error_code& error)
 }
 
 // Async read handler
-//void wxSerialPort::AsyncReadHandler(const boost::system::error_code& error, std::size_t bytes_transferred)
+// void wxSerialPort::AsyncReadHandler(const boost::system::error_code& error, std::size_t bytes_transferred)
 //{
 //    // Read operation was not aborted
 //    if (!error) // != boost::asio::error::operation_aborted
@@ -1692,7 +1680,7 @@ void wxSerialPort::DoSetLastError(const boost::system::error_code& error)
 //}
 
 // Async write handler
-//void wxSerialPort::AsyncWriteHandler(const boost::system::error_code& error, std::size_t bytes_transferred)
+// void wxSerialPort::AsyncWriteHandler(const boost::system::error_code& error, std::size_t bytes_transferred)
 //{
 //    // Write operation was not aborted
 //    if (!error) // != boost::asio::error::operation_aborted
@@ -1707,7 +1695,7 @@ void wxSerialPort::DoSetLastError(const boost::system::error_code& error)
 //}
 
 // Async wait handler
-//void wxSerialPort::AsyncWaitHandler(const boost::system::error_code& error)
+// void wxSerialPort::AsyncWaitHandler(const boost::system::error_code& error)
 //{
 //    // Timed out
 //    if (!error) // != boost::asio::error::operation_aborted
@@ -1718,7 +1706,7 @@ void wxSerialPort::DoSetLastError(const boost::system::error_code& error)
 
 void wxSerialPort::Init()
 {
-    //m_bytes_read = 0;
-    //m_bytes_written = 0;
+    // m_bytes_read = 0;
+    // m_bytes_written = 0;
     m_last_error = boost::system::error_code(); // 0
 }
