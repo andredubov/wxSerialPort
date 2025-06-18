@@ -24,14 +24,6 @@
 
 wxSerialPortBase::wxSerialPortBase() : m_io_context()
 {
-    // Ctor
-    // Init();
-}
-
-wxSerialPortBase::~wxSerialPortBase()
-{
-    // Dtor
-    // m_io_context.~io_context();
 }
 
 std::vector<wxString> wxSerialPortBase::GetPortNames()
@@ -1609,7 +1601,7 @@ void wxSerialPort::DoSetTimeout(const int timeout)
     if (timeout == wxTIMEOUT_INFINITE)
         m_timer.expires_at(std::chrono::steady_clock::time_point::max());
     else
-        m_timer.expires_from_now(std::chrono::milliseconds(timeout));
+        m_timer.expires_after(std::chrono::milliseconds(timeout));
 }
 
 // This helper function is intended for internal use by the class itself
@@ -1663,46 +1655,6 @@ void wxSerialPort::DoSetLastError(const boost::system::error_code &error)
     m_last_error = error;
     OnError();
 }
-
-// Async read handler
-// void wxSerialPort::AsyncReadHandler(const boost::system::error_code& error, std::size_t bytes_transferred)
-//{
-//    // Read operation was not aborted
-//    if (!error) // != boost::asio::error::operation_aborted
-//        m_timer.cancel();
-//
-//    {
-//        wxCriticalSectionLocker lock(m_csBytesRead);
-//        m_bytes_read = bytes_transferred;
-//    }
-//
-//    DoSetLastError(error);
-//}
-
-// Async write handler
-// void wxSerialPort::AsyncWriteHandler(const boost::system::error_code& error, std::size_t bytes_transferred)
-//{
-//    // Write operation was not aborted
-//    if (!error) // != boost::asio::error::operation_aborted
-//        m_timer.cancel();
-//
-//    {
-//        wxCriticalSectionLocker lock(m_csBytesWritten);
-//        m_bytes_written = bytes_transferred;
-//    }
-//
-//    DoSetLastError(error);
-//}
-
-// Async wait handler
-// void wxSerialPort::AsyncWaitHandler(const boost::system::error_code& error)
-//{
-//    // Timed out
-//    if (!error) // != boost::asio::error::operation_aborted
-//        m_serialPort.cancel();
-//
-//    DoSetLastError(error);
-//}
 
 void wxSerialPort::Init()
 {
