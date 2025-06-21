@@ -4,8 +4,9 @@
 #include <map>
 #include <wx/string.h>
 #include <boost/asio.hpp>
+#include "SerialPortSettings.hpp"
 #include "ISerialPortTransport.hpp"
-#include "ISerialPortSettings.hpp"
+#include "ISerialPortSettingsProvider.hpp"
 
 namespace wx
 {
@@ -16,7 +17,7 @@ namespace wx
         asio::io_context io_context;
         asio::serial_port serial_port;
         asio::serial_port::native_handle_type native_handle;
-        std::shared_ptr<ISerialPortSettings<wxString>> serial_port_settings;
+        const ISerialPortSettingsProvider<wxString>& serial_port_settings;
 
         bool IsHandleValid() const;
 
@@ -25,8 +26,7 @@ namespace wx
 #endif
 
     public:
-        explicit AsioSerialPortTransport();
-        explicit AsioSerialPortTransport(std::shared_ptr<ISerialPortSettings<wxString>> settings);
+        explicit AsioSerialPortTransport(const ISerialPortSettingsProvider<wxString>& settings = SerialPortSettings{});
 
         virtual ~AsioSerialPortTransport() = default;
 
@@ -39,12 +39,14 @@ namespace wx
         void Close() override;
 
         void SetRequestToSend(bool state) override;
-        void ApplySerialPortSettings(std::shared_ptr<ISerialPortSettings<wxString>> settings) override;
-        void ApplySerialPortBaudRate(std::shared_ptr<ISerialPortSettings<wxString>> settings) override;
-        void ApplySerialPortStopBits(std::shared_ptr<ISerialPortSettings<wxString>> settings) override;
-        void ApplySerialPortDataBits(std::shared_ptr<ISerialPortSettings<wxString>> settings) override;
-        void ApplySerialPortParity(std::shared_ptr<ISerialPortSettings<wxString>> settings) override;
-        void ApplySerialPortFlowControl(std::shared_ptr<ISerialPortSettings<wxString>> settings) override;
+
+        void ApplySerialPortSettings(const ISerialPortSettingsProvider<wxString>& settings) override;
+
+        void ApplySerialPortBaudRate(uint32_t baudRate) override;
+        void ApplySerialPortStopBits(StopBits stopBits) override;
+        void ApplySerialPortDataBits(DataBits dataBits) override;
+        void ApplySerialPortParity(Parity parity) override;
+        void ApplySerialPortFlowControl(FlowControl flowControl) override;
     };
 }
 

@@ -7,17 +7,7 @@
 
 namespace wx
 {
-    AsioSerialPortTransport::AsioSerialPortTransport() : 
-        ISerialPortTransport(),
-        serial_port_settings(),
-        io_context(),
-        serial_port(io_context),
-        native_handle(0)
-    {
-        serial_port_settings = std::make_shared<SerialPortSettings>();
-    }
-
-    AsioSerialPortTransport::AsioSerialPortTransport(std::shared_ptr<ISerialPortSettings<wxString>> settings) : 
+    AsioSerialPortTransport::AsioSerialPortTransport(const ISerialPortSettingsProvider<wxString>& settings) : 
         ISerialPortTransport(),
         serial_port_settings(settings),
         io_context(),
@@ -31,12 +21,12 @@ namespace wx
     {
         try
         {
-            serial_port.open(serial_port_settings->GetPortName().ToStdString());
+            serial_port.open(serial_port_settings.GetPortName().ToStdString());
         }
         catch (const boost::system::system_error &e)
         {
             auto message = wxString::Format("Error opening %s: %s", 
-                serial_port_settings->GetPortName().ToStdString().c_str(), 
+                serial_port_settings.GetPortName().ToStdString().c_str(), 
                 e.what()
             );
             throw std::runtime_error(message);
@@ -47,17 +37,17 @@ namespace wx
             throw std::runtime_error("Failed to open port");
         }
 
-        ApplySerialPortBaudRate(serial_port_settings);
-        ApplySerialPortStopBits(serial_port_settings);
-        ApplySerialPortDataBits(serial_port_settings);
-        ApplySerialPortParity(serial_port_settings);
-        ApplySerialPortFlowControl(serial_port_settings);
+        ApplySerialPortBaudRate(serial_port_settings.GetBaudRate());
+        ApplySerialPortStopBits(serial_port_settings.GetStopBits());
+        ApplySerialPortDataBits(serial_port_settings.GetDataBits());
+        ApplySerialPortParity(serial_port_settings.GetParity());
+        ApplySerialPortFlowControl(serial_port_settings.GetFlowControl());
 
         native_handle = serial_port.native_handle();
 
         if (auto ok = IsHandleValid(); !ok)
         {
-            auto message = wxT("Invalid native handle: port ") + serial_port_settings->GetPortName() + wxT(" is not open");
+            auto message = wxT("Invalid native handle: port ") + serial_port_settings.GetPortName() + wxT(" is not open");
             throw std::runtime_error(message);
         }
     }
@@ -93,7 +83,7 @@ namespace wx
         if (::ioctl(native_handle, TIOCMGET, &status) == -1)
         {
             int errorCode = errno;
-            auto message = wxString::Format("Failed to get RTS state: %s [errno: %d]", 
+            auto message = wxString::Format("Failed to get RTS state: {} [errno: {}]", 
                 strerror(errorCode), 
                 errorCode
             ).ToStdString();
@@ -113,7 +103,7 @@ namespace wx
         if (::ioctl(native_handle, TIOCMSET, &status) == -1)
         {
             int errorCode = errno;
-            auto message = wxString::Format("Failed to set RTS state: %s [errno: %d]", 
+            auto message = wxString::Format("Failed to set RTS state: {} [errno: {}]", 
                 strerror(errorCode), 
                 errorCode
             ).ToStdString();
@@ -123,19 +113,17 @@ namespace wx
     #endif
     }
 
-    void AsioSerialPortTransport::ApplySerialPortSettings(std::shared_ptr<ISerialPortSettings<wxString>> settings)
+    void AsioSerialPortTransport::ApplySerialPortSettings(const ISerialPortSettingsProvider<wxString>& settings)
     {
-        ApplySerialPortBaudRate(settings);
-        ApplySerialPortDataBits(settings);
-        ApplySerialPortStopBits(settings);
-        ApplySerialPortParity(settings);
-        ApplySerialPortFlowControl(settings);
+        ApplySerialPortBaudRate(settings.GetBaudRate());
+        ApplySerialPortDataBits(settings.GetDataBits());
+        ApplySerialPortStopBits(settings.GetStopBits());
+        ApplySerialPortParity(settings.GetParity());
+        ApplySerialPortFlowControl(settings.GetFlowControl());
     }
 
-    void AsioSerialPortTransport::ApplySerialPortBaudRate(std::shared_ptr<ISerialPortSettings<wxString>> settings)
+    void AsioSerialPortTransport::ApplySerialPortBaudRate(uint32_t baud_rate)
     {
-        auto baud_rate = settings->GetBaudRate();
-
         serial_port.set_option(asio::serial_port_base::baud_rate(baud_rate));
         asio::serial_port_base::baud_rate current_baud_rate;
         serial_port.get_option(current_baud_rate);
@@ -151,10 +139,8 @@ namespace wx
         }
     }
 
-    void AsioSerialPortTransport::ApplySerialPortDataBits(std::shared_ptr<ISerialPortSettings<wxString>> settings)
+    void AsioSerialPortTransport::ApplySerialPortDataBits(DataBits data_bits)
     {
-        auto data_bits = settings->GetDataBits();
-
         switch (data_bits)
         {
         case DataBits::Five:
@@ -188,10 +174,8 @@ namespace wx
         }
     }
 
-    void AsioSerialPortTransport::ApplySerialPortStopBits(std::shared_ptr<ISerialPortSettings<wxString>> settings)
+    void AsioSerialPortTransport::ApplySerialPortStopBits(StopBits stop_bits)
     {
-        auto stop_bits = settings->GetStopBits();
-
         switch (stop_bits)
         {
         case StopBits::One:
@@ -222,10 +206,8 @@ namespace wx
         }
     }
 
-    void AsioSerialPortTransport::ApplySerialPortParity(std::shared_ptr<ISerialPortSettings<wxString>> settings)
+    void AsioSerialPortTransport::ApplySerialPortParity(Parity parity)
     {
-        auto parity = settings->GetParity();
-
         switch (parity)
         {
         case Parity::None:
@@ -256,10 +238,8 @@ namespace wx
         }
     }
 
-    void AsioSerialPortTransport::ApplySerialPortFlowControl(std::shared_ptr<ISerialPortSettings<wxString>> settings)
+    void AsioSerialPortTransport::ApplySerialPortFlowControl(FlowControl flow_control)
     {
-        auto flow_control = settings->GetFlowControl();
-
         switch (flow_control)
         {
         case FlowControl::None:

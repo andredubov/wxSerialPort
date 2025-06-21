@@ -11,6 +11,7 @@ namespace wx
         FlowControl flowControl
     ) : 
         ISerialPortSettings(),
+        ISerialPortSettingsProvider(),
         portName(portName),
         baudRate(baudRate),
         dataBits(dataBits),
@@ -21,7 +22,7 @@ namespace wx
         
     }
     
-    const wxString& SerialPortSettings::GetPortName() const
+    wxString SerialPortSettings::GetPortName() const
     {
         return portName;
     }

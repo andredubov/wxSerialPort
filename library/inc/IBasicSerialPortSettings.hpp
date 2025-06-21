@@ -12,7 +12,7 @@ namespace wx
     {
         virtual ~IBasicSerialPortSettings() = default;
         
-        virtual const StringType& GetPortName() const = 0;
+        virtual StringType GetPortName() const = 0;
         virtual uint32_t GetBaudRate() const = 0;
         virtual DataBits GetDataBits() const = 0;
         

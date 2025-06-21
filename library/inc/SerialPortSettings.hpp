@@ -3,10 +3,11 @@
 
 #include <wx/string.h>
 #include "ISerialPortSettings.hpp"
+#include "ISerialPortSettingsProvider.hpp"
 
 namespace wx
 {
-    class SerialPortSettings : public ISerialPortSettings<wxString>
+    class SerialPortSettings : public ISerialPortSettings<wxString>, public ISerialPortSettingsProvider<wxString>
     {
         wxString portName;
         uint32_t baudRate;
@@ -25,7 +26,7 @@ namespace wx
             FlowControl flowControl = FlowControl::None
         );
 
-        virtual const wxString& GetPortName() const override;
+        virtual wxString GetPortName() const override;
         virtual uint32_t GetBaudRate() const override;
         virtual DataBits GetDataBits() const override;
         virtual StopBits GetStopBits() const override;

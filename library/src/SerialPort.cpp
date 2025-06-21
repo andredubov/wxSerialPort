@@ -5,12 +5,12 @@ namespace wx
 {
     SerialPort::SerialPort() : 
         ISerialPort(),
-        transport()
+        transport(AsioSerialPortTransport{})
     {
-        transport = std::make_shared<AsioSerialPortTransport>();
+
     }
 
-    SerialPort::SerialPort(std::shared_ptr<ISerialPortTransport<wxString>> transport) : 
+    SerialPort::SerialPort(ISerialPortTransport<wxString>& transport) : 
         ISerialPort(),
         transport(transport)
     {
@@ -19,46 +19,46 @@ namespace wx
 
     void SerialPort::Open()
     {
-        transport->Open();
+        transport.Open();
     }
 
     void SerialPort::Close()
     {
-        transport->Close();
+        transport.Close();
     }
 
     void SerialPort::SetRequestToSend(bool state)
     {
-        transport->SetRequestToSend(state);
+        transport.SetRequestToSend(state);
     }
 
-    void SerialPort::ApplySerialPortSettings(std::shared_ptr<ISerialPortSettings<wxString>> settings)
+    void SerialPort::ApplySerialPortSettings(const ISerialPortSettingsProvider<wxString>& settings)
     {
-        transport->ApplySerialPortSettings(settings);
+        transport.ApplySerialPortSettings(settings);
     }
 
-    void SerialPort::ApplySerialPortBaudRate(std::shared_ptr<ISerialPortSettings<wxString>> settings)
+    void SerialPort::ApplySerialPortBaudRate(uint32_t baudRate)
     {
-        transport->ApplySerialPortBaudRate(settings);
+        transport.ApplySerialPortBaudRate(baudRate);
     }
 
-    void SerialPort::ApplySerialPortDataBits(std::shared_ptr<ISerialPortSettings<wxString>> settings)
+    void SerialPort::ApplySerialPortDataBits(DataBits dataBits)
     {
-        transport->ApplySerialPortStopBits(settings);
+        transport.ApplySerialPortDataBits(dataBits);
     }
 
-    void SerialPort::ApplySerialPortStopBits(std::shared_ptr<ISerialPortSettings<wxString>> settings)
+    void SerialPort::ApplySerialPortStopBits(StopBits stopBits)
     {
-        transport->ApplySerialPortStopBits(settings);
+        transport.ApplySerialPortStopBits(stopBits);
     }
 
-    void SerialPort::ApplySerialPortParity(std::shared_ptr<ISerialPortSettings<wxString>> settings)
+    void SerialPort::ApplySerialPortParity(Parity parity)
     {
-        transport->ApplySerialPortStopBits(settings);
+        transport.ApplySerialPortParity(parity);
     }
 
-    void SerialPort::ApplySerialPortFlowControl(std::shared_ptr<ISerialPortSettings<wxString>> settings)
+    void SerialPort::ApplySerialPortFlowControl(FlowControl flowControl)
     {
-        transport->ApplySerialPortStopBits(settings);
+        transport.ApplySerialPortFlowControl(flowControl);
     }
 }

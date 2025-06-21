@@ -1,8 +1,11 @@
 #ifndef _WX_I_SERIAL_PORT_TRANSPORT_HPP
 #define _WX_I_SERIAL_PORT_TRANSPORT_HPP
 
-#include <memory>
-#include "ISerialPortSettings.hpp"
+#include "DataBits.hpp"
+#include "StopBits.hpp"
+#include "Parity.hpp"
+#include "FlowControl.hpp"
+#include "ISerialPortSettingsProvider.hpp"
 
 namespace wx
 {
@@ -16,12 +19,13 @@ namespace wx
 
         virtual void SetRequestToSend(bool state) = 0;
         
-        virtual void ApplySerialPortSettings(std::shared_ptr<ISerialPortSettings<StringType>> settings) = 0;
-        virtual void ApplySerialPortBaudRate(std::shared_ptr<ISerialPortSettings<StringType>> settings) = 0;
-        virtual void ApplySerialPortStopBits(std::shared_ptr<ISerialPortSettings<StringType>> settings) = 0;
-        virtual void ApplySerialPortDataBits(std::shared_ptr<ISerialPortSettings<StringType>> settings) = 0;
-        virtual void ApplySerialPortParity(std::shared_ptr<ISerialPortSettings<StringType>> settings) = 0;
-        virtual void ApplySerialPortFlowControl(std::shared_ptr<ISerialPortSettings<StringType>> settings) = 0;
+        virtual void ApplySerialPortSettings(const ISerialPortSettingsProvider<StringType>& settings) = 0;
+
+        virtual void ApplySerialPortBaudRate(uint32_t baudRate) = 0;
+        virtual void ApplySerialPortStopBits(StopBits stopBits) = 0;
+        virtual void ApplySerialPortDataBits(DataBits dataBits) = 0;
+        virtual void ApplySerialPortParity(Parity parity) = 0;
+        virtual void ApplySerialPortFlowControl(FlowControl flowControl) = 0;
     };
 }
 

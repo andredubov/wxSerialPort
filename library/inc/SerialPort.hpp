@@ -9,11 +9,11 @@ namespace wx
 {
     class SerialPort : public ISerialPort<wxString>
     {
-        std::shared_ptr<ISerialPortTransport<wxString>> transport;
+        ISerialPortTransport<wxString>& transport;
 
     public:
         explicit SerialPort();
-        explicit SerialPort(std::shared_ptr<ISerialPortTransport<wxString>> transport);
+        explicit SerialPort(ISerialPortTransport<wxString>& transport);
 
         virtual ~SerialPort() = default;
 
@@ -27,12 +27,13 @@ namespace wx
 
         void SetRequestToSend(bool state) override;
 
-        void ApplySerialPortSettings(std::shared_ptr<ISerialPortSettings<wxString>> settings) override;
-        void ApplySerialPortBaudRate(std::shared_ptr<ISerialPortSettings<wxString>> settings) override;
-        void ApplySerialPortStopBits(std::shared_ptr<ISerialPortSettings<wxString>> settings) override;
-        void ApplySerialPortDataBits(std::shared_ptr<ISerialPortSettings<wxString>> settings) override;
-        void ApplySerialPortParity(std::shared_ptr<ISerialPortSettings<wxString>> settings) override;
-        void ApplySerialPortFlowControl(std::shared_ptr<ISerialPortSettings<wxString>> settings) override;
+        void ApplySerialPortSettings(const ISerialPortSettingsProvider<wxString>& settings) override;
+
+        void ApplySerialPortBaudRate(uint32_t baudRate) override;
+        void ApplySerialPortStopBits(StopBits stopBits) override;
+        void ApplySerialPortDataBits(DataBits dataBits) override;
+        void ApplySerialPortParity(Parity parity) override;
+        void ApplySerialPortFlowControl(FlowControl flowControl) override;
     };
 }
 
