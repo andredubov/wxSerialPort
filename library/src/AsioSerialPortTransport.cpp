@@ -47,11 +47,11 @@ namespace wx
             throw std::runtime_error("Failed to open port");
         }
 
-        ApplySerialPortBaudRate(serial_port_settings.GetBaudRate());
-        ApplySerialPortStopBits(serial_port_settings.GetStopBits());
-        ApplySerialPortDataBits(serial_port_settings.GetDataBits());
-        ApplySerialPortParity(serial_port_settings.GetParity());
-        ApplySerialPortFlowControl(serial_port_settings.GetFlowControl());
+        SetBaudRate(serial_port_settings.GetBaudRate());
+        SetStopBits(serial_port_settings.GetStopBits());
+        SetDataBits(serial_port_settings.GetDataBits());
+        SetParity(serial_port_settings.GetParity());
+        SetFlowControl(serial_port_settings.GetFlowControl());
 
         native_handle = serial_port.native_handle();
 
@@ -125,14 +125,14 @@ namespace wx
 
     void AsioSerialPortTransport::ApplySerialPortSettings(const ISerialPortSettingsProvider<wxString>& settings)
     {
-        ApplySerialPortBaudRate(settings.GetBaudRate());
-        ApplySerialPortDataBits(settings.GetDataBits());
-        ApplySerialPortStopBits(settings.GetStopBits());
-        ApplySerialPortParity(settings.GetParity());
-        ApplySerialPortFlowControl(settings.GetFlowControl());
+        SetBaudRate(settings.GetBaudRate());
+        SetDataBits(settings.GetDataBits());
+        SetStopBits(settings.GetStopBits());
+        SetParity(settings.GetParity());
+        SetFlowControl(settings.GetFlowControl());
     }
 
-    void AsioSerialPortTransport::ApplySerialPortBaudRate(uint32_t baud_rate)
+    void AsioSerialPortTransport::SetBaudRate(uint32_t baud_rate)
     {
         serial_port.set_option(asio::serial_port_base::baud_rate(baud_rate));
         asio::serial_port_base::baud_rate current_baud_rate;
@@ -149,7 +149,7 @@ namespace wx
         }
     }
 
-    void AsioSerialPortTransport::ApplySerialPortDataBits(DataBits data_bits)
+    void AsioSerialPortTransport::SetDataBits(DataBits data_bits)
     {
         switch (data_bits)
         {
@@ -184,7 +184,7 @@ namespace wx
         }
     }
 
-    void AsioSerialPortTransport::ApplySerialPortStopBits(StopBits stop_bits)
+    void AsioSerialPortTransport::SetStopBits(StopBits stop_bits)
     {
         switch (stop_bits)
         {
@@ -216,7 +216,7 @@ namespace wx
         }
     }
 
-    void AsioSerialPortTransport::ApplySerialPortParity(Parity parity)
+    void AsioSerialPortTransport::SetParity(Parity parity)
     {
         switch (parity)
         {
@@ -248,7 +248,7 @@ namespace wx
         }
     }
 
-    void AsioSerialPortTransport::ApplySerialPortFlowControl(FlowControl flow_control)
+    void AsioSerialPortTransport::SetFlowControl(FlowControl flow_control)
     {
         switch (flow_control)
         {

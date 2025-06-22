@@ -42,11 +42,11 @@ namespace wx
 
         void ApplySerialPortSettings(const ISerialPortSettingsProvider<wxString>& settings) override;
 
-        void ApplySerialPortBaudRate(uint32_t baudRate) override;
-        void ApplySerialPortStopBits(StopBits stopBits) override;
-        void ApplySerialPortDataBits(DataBits dataBits) override;
-        void ApplySerialPortParity(Parity parity) override;
-        void ApplySerialPortFlowControl(FlowControl flowControl) override;
+        void SetBaudRate(uint32_t baudRate) override;
+        void SetStopBits(StopBits stopBits) override;
+        void SetDataBits(DataBits dataBits) override;
+        void SetParity(Parity parity) override;
+        void SetFlowControl(FlowControl flowControl) override;
     };
 }
 

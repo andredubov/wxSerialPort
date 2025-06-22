@@ -21,11 +21,11 @@ namespace wx
         
         virtual void ApplySerialPortSettings(const ISerialPortSettingsProvider<StringType>& settings) = 0;
 
-        virtual void ApplySerialPortBaudRate(uint32_t baudRate) = 0;
-        virtual void ApplySerialPortStopBits(StopBits stopBits) = 0;
-        virtual void ApplySerialPortDataBits(DataBits dataBits) = 0;
-        virtual void ApplySerialPortParity(Parity parity) = 0;
-        virtual void ApplySerialPortFlowControl(FlowControl flowControl) = 0;
+        virtual void SetBaudRate(uint32_t baudRate) = 0;
+        virtual void SetStopBits(StopBits stopBits) = 0;
+        virtual void SetDataBits(DataBits dataBits) = 0;
+        virtual void SetParity(Parity parity) = 0;
+        virtual void SetFlowControl(FlowControl flowControl) = 0;
     };
 }
 

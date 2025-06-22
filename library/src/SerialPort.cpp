@@ -37,28 +37,28 @@ namespace wx
         transport.ApplySerialPortSettings(settings);
     }
 
-    void SerialPort::ApplySerialPortBaudRate(uint32_t baudRate)
+    void SerialPort::SetBaudRate(uint32_t baudRate)
     {
-        transport.ApplySerialPortBaudRate(baudRate);
+        transport.SetBaudRate(baudRate);
     }
 
-    void SerialPort::ApplySerialPortDataBits(DataBits dataBits)
+    void SerialPort::SetDataBits(DataBits dataBits)
     {
-        transport.ApplySerialPortDataBits(dataBits);
+        transport.SetDataBits(dataBits);
     }
 
-    void SerialPort::ApplySerialPortStopBits(StopBits stopBits)
+    void SerialPort::SetStopBits(StopBits stopBits)
     {
-        transport.ApplySerialPortStopBits(stopBits);
+        transport.SetStopBits(stopBits);
     }
 
-    void SerialPort::ApplySerialPortParity(Parity parity)
+    void SerialPort::SetParity(Parity parity)
     {
-        transport.ApplySerialPortParity(parity);
+        transport.SetParity(parity);
     }
 
-    void SerialPort::ApplySerialPortFlowControl(FlowControl flowControl)
+    void SerialPort::SetFlowControl(FlowControl flowControl)
     {
-        transport.ApplySerialPortFlowControl(flowControl);
+        transport.SetFlowControl(flowControl);
     }
 }
