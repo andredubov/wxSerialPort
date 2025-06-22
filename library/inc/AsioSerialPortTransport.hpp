@@ -4,7 +4,6 @@
 #include <map>
 #include <wx/string.h>
 #include <boost/asio.hpp>
-#include "SerialPortSettings.hpp"
 #include "ISerialPortTransport.hpp"
 #include "ISerialPortSettingsProvider.hpp"
 
@@ -26,7 +25,8 @@ namespace wx
 #endif
 
     public:
-        explicit AsioSerialPortTransport(const ISerialPortSettingsProvider<wxString>& settings = SerialPortSettings{});
+        explicit AsioSerialPortTransport();
+        explicit AsioSerialPortTransport(const ISerialPortSettingsProvider<wxString>& settings);
 
         virtual ~AsioSerialPortTransport() = default;
 

@@ -7,6 +7,16 @@
 
 namespace wx
 {
+    AsioSerialPortTransport::AsioSerialPortTransport() : 
+        ISerialPortTransport(),
+        serial_port_settings(SerialPortSettings{}),
+        io_context(),
+        serial_port(io_context),
+        native_handle(0)
+    {
+
+    }
+
     AsioSerialPortTransport::AsioSerialPortTransport(const ISerialPortSettingsProvider<wxString>& settings) : 
         ISerialPortTransport(),
         serial_port_settings(settings),
