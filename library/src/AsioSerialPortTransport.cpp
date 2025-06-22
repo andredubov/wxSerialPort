@@ -279,4 +279,57 @@ namespace wx
             throw std::runtime_error(message);
         }
     }
+
+    bool AsioSerialPortTransport::IsHandleValid() const
+    {
+    #ifdef _WIN32
+        return native_handle && reinterpret_cast<HANDLE>(native_handle) != INVALID_HANDLE_VALUE;
+    #else
+        return native_handle >= 0;
+    #endif
+    }
+
+    #ifdef _WIN32
+    std::string AsioSerialPortTransport::GetLastErrorString(DWORD errorCode)
+    {
+        LPTSTR tbuffer = nullptr;
+
+        DWORD size = FormatMessage(
+            FORMAT_MESSAGE_ALLOCATE_BUFFER |
+                FORMAT_MESSAGE_FROM_SYSTEM |
+                FORMAT_MESSAGE_IGNORE_INSERTS,
+            nullptr,
+            errorCode,
+            MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT),
+            reinterpret_cast<LPTSTR>(&tbuffer),
+            0,
+            nullptr);
+
+        if (0 == size)
+        {
+            return "Failed to get error message";
+        }
+
+    #ifdef UNICODE
+        // для Unicode проектов
+        std::wstring wmessage(tbuffer, size);
+        ::LocalFree(tbuffer);
+
+        int utf8Size = WideCharToMultiByte(CP_UTF8, 0, wmessage.c_str(), -1, nullptr, 0, nullptr, nullptr);
+        std::string message(utf8Size, '\0');
+        WideCharToMultiByte(CP_UTF8, 0, wmessage.c_str(), -1, &message[0], utf8Size, nullptr, nullptr);
+    #else
+        // для ANSI проектов
+        std::string message(tbuffer, size);
+        ::LocalFree(tbuffer);
+    #endif
+
+        // удаляем \r\n
+        message.erase(std::remove(message.begin(), message.end(), '\r'), message.end());
+        message.erase(std::remove(message.begin(), message.end(), '\n'), message.end());
+        
+        // return wxString(message.c_str(), wxConvLocal);
+        return message;
+    }
+    #endif
 }
