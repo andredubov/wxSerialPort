@@ -1,6 +1,7 @@
 #ifndef _WX_SERIAL_PORT_HPP
 #define _WX_SERIAL_PORT_HPP
 
+#include <memory>
 #include <wx/string.h>
 #include "ISerialPort.hpp"
 #include "ISerialPortTransport.hpp"
@@ -9,11 +10,11 @@ namespace wx
 {
     class SerialPort : public ISerialPort<wxString>
     {
-        ISerialPortTransport<wxString>& transport;
+        std::shared_ptr<ISerialPortTransport<wxString>> transport;
 
     public:
         explicit SerialPort();
-        explicit SerialPort(ISerialPortTransport<wxString>& transport);
+        explicit SerialPort(std::shared_ptr<ISerialPortTransport<wxString>> transport);
 
         virtual ~SerialPort() = default;
 
