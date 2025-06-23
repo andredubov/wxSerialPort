@@ -14,12 +14,16 @@ namespace wx
     {
         virtual ~ISerialPortTransport()  = default;
 
-        virtual void Open() = 0;
+        virtual void Open(const wxString& portName, 
+            uint32_t baudRate, 
+            DataBits dataBits, 
+            StopBits stopBits, 
+            Parity parity, 
+            FlowControl flowControl) = 0;
+
         virtual void Close() = 0;
 
         virtual void SetRequestToSend(bool state) = 0;
-        
-        virtual void ApplySerialPortSettings(const ISerialPortSettingsProvider<StringType>& settings) = 0;
 
         virtual void SetBaudRate(uint32_t baudRate) = 0;
         virtual void SetStopBits(StopBits stopBits) = 0;

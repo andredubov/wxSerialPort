@@ -22,12 +22,16 @@ namespace wx
         SerialPort& operator=(const SerialPort& rhs) = delete;
         SerialPort& operator=(const SerialPort&& rhs) = delete;
 
-        void Open() override;
+        void Open(const wxString& portName, 
+            uint32_t baudRate = 9600u, 
+            DataBits dataBits = DataBits::Eight, 
+            StopBits stopBits = StopBits::One, 
+            Parity parity = Parity::None, 
+            FlowControl flowControl = FlowControl::None) override;
+
         void Close() override;
 
         void SetRequestToSend(bool state) override;
-
-        void ApplySerialPortSettings(const ISerialPortSettingsProvider<wxString>& settings) override;
 
         void SetBaudRate(uint32_t baudRate) override;
         void SetStopBits(StopBits stopBits) override;

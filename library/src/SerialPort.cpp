@@ -17,9 +17,9 @@ namespace wx
 
     }
 
-    void SerialPort::Open()
+    void SerialPort::Open(const wxString& portName, uint32_t baudRate, DataBits dataBits, StopBits stopBits, Parity parity, FlowControl flowControl)
     {
-        transport.Open();
+        transport.Open(portName, baudRate, dataBits, stopBits, parity, flowControl);
     }
 
     void SerialPort::Close()
@@ -30,11 +30,6 @@ namespace wx
     void SerialPort::SetRequestToSend(bool state)
     {
         transport.SetRequestToSend(state);
-    }
-
-    void SerialPort::ApplySerialPortSettings(const ISerialPortSettingsProvider<wxString>& settings)
-    {
-        transport.ApplySerialPortSettings(settings);
     }
 
     void SerialPort::SetBaudRate(uint32_t baudRate)

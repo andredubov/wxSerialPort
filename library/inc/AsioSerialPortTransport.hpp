@@ -5,7 +5,6 @@
 #include <wx/string.h>
 #include <boost/asio.hpp>
 #include "ISerialPortTransport.hpp"
-#include "ISerialPortSettingsProvider.hpp"
 
 namespace wx
 {
@@ -16,7 +15,6 @@ namespace wx
         asio::io_context io_context;
         asio::serial_port serial_port;
         asio::serial_port::native_handle_type native_handle;
-        const ISerialPortSettingsProvider<wxString>& serial_port_settings;
 
         bool IsHandleValid() const;
 
@@ -26,7 +24,6 @@ namespace wx
 
     public:
         explicit AsioSerialPortTransport();
-        explicit AsioSerialPortTransport(const ISerialPortSettingsProvider<wxString>& settings);
 
         virtual ~AsioSerialPortTransport() = default;
 
@@ -35,12 +32,16 @@ namespace wx
         AsioSerialPortTransport& operator=(const AsioSerialPortTransport& rhs) = delete;
         AsioSerialPortTransport& operator=(const AsioSerialPortTransport&& rhs) = delete;
 
-        void Open() override;
+        void Open(const wxString& portName, 
+            uint32_t baudRate = 9600u,
+            DataBits dataBits = DataBits::Eight, 
+            StopBits stopBits = StopBits::One, 
+            Parity parity = Parity::None, 
+            FlowControl flowControl = FlowControl::None) override;
+
         void Close() override;
 
         void SetRequestToSend(bool state) override;
-
-        void ApplySerialPortSettings(const ISerialPortSettingsProvider<wxString>& settings) override;
 
         void SetBaudRate(uint32_t baudRate) override;
         void SetStopBits(StopBits stopBits) override;
