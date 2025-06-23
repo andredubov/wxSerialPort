@@ -14,7 +14,7 @@ namespace wx
     {
         virtual ~ISerialPortTransport()  = default;
 
-        virtual void Open(const wxString& portName, 
+        virtual void Open(const StringType& portName, 
             uint32_t baudRate, 
             DataBits dataBits, 
             StopBits stopBits, 
