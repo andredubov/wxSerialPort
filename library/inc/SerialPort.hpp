@@ -2,6 +2,7 @@
 #define _WX_SERIAL_PORT_HPP
 
 #include <memory>
+#include <vector>
 #include <wx/string.h>
 #include "ISerialPort.hpp"
 #include "ISerialPortTransport.hpp"
@@ -13,6 +14,8 @@ namespace wx
         std::shared_ptr<ISerialPortTransport<wxString>> transport;
 
     public:
+        static std::vector<wxString> GetPortNames();
+
         explicit SerialPort();
         explicit SerialPort(std::shared_ptr<ISerialPortTransport<wxString>> transport);
 
