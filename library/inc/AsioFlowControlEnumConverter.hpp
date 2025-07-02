@@ -3,6 +3,7 @@
 
 #include "EnumConverter.hpp"
 #include <wx/string.h>
+#include <wx/translation.h>
 #include <boost/asio.hpp>
 
 namespace wx
@@ -44,9 +45,9 @@ namespace wx
     EnumConverter<asio::serial_port_base::flow_control::type, wxString>::GetToStringMap()
     {
         static const std::map<asio::serial_port_base::flow_control::type, wxString> map = {
-            {asio::serial_port_base::flow_control::type::none, wxT("None")},
-            {asio::serial_port_base::flow_control::type::hardware, wxT("Hardware")},
-            {asio::serial_port_base::flow_control::type::software, wxT("Software")}
+            {asio::serial_port_base::flow_control::type::none, wxGetTranslation("None")},
+            {asio::serial_port_base::flow_control::type::hardware, wxGetTranslation("Hardware")},
+            {asio::serial_port_base::flow_control::type::software, wxGetTranslation("Xon / Xoff")}
         };
 
         return map;
@@ -57,9 +58,9 @@ namespace wx
     EnumConverter<asio::serial_port_base::flow_control::type, wxString>::GetFromStringMap()
     {
         static const std::map<wxString, asio::serial_port_base::flow_control::type> map = {
-            {wxT("None"), asio::serial_port_base::flow_control::type::none},
-            {wxT("Hardware"), asio::serial_port_base::flow_control::type::hardware},
-            {wxT("Software"), asio::serial_port_base::flow_control::type::software}
+            {wxGetTranslation("None"), asio::serial_port_base::flow_control::type::none},
+            {wxGetTranslation("Hardware"), asio::serial_port_base::flow_control::type::hardware},
+            {wxGetTranslation("Xon / Xoff"), asio::serial_port_base::flow_control::type::software}
         };
 
         return map;
