@@ -3,6 +3,7 @@
 
 #include "EnumConverter.hpp"
 #include <wx/string.h>
+#include <wx/translation.h>
 #include <boost/asio.hpp>
 
 namespace wx
@@ -42,9 +43,9 @@ namespace wx
     EnumConverter<asio::serial_port_base::parity::type, wxString>::GetToStringMap()
     {
         static const std::map<asio::serial_port_base::parity::type, wxString> map = {
-            {asio::serial_port_base::parity::type::none, "None"},
-            {asio::serial_port_base::parity::type::odd, "Odd"},
-            {asio::serial_port_base::parity::type::even, "Even"}};
+            {asio::serial_port_base::parity::type::none, wxGetTranslation("None")},
+            {asio::serial_port_base::parity::type::odd, wxGetTranslation("Odd")},
+            {asio::serial_port_base::parity::type::even, wxGetTranslation("Even")}};
 
         return map;
     }
@@ -54,9 +55,9 @@ namespace wx
     EnumConverter<asio::serial_port_base::parity::type, wxString>::GetFromStringMap()
     {
         static const std::map<wxString, asio::serial_port_base::parity::type> map = {
-            {"None", asio::serial_port_base::parity::type::none},
-            {"Odd", asio::serial_port_base::parity::type::odd},
-            {"Even", asio::serial_port_base::parity::type::even}};
+            {wxGetTranslation("None"), asio::serial_port_base::parity::type::none},
+            {wxGetTranslation("Odd"), asio::serial_port_base::parity::type::odd},
+            {wxGetTranslation("Even"), asio::serial_port_base::parity::type::even}};
 
         return map;
     }
