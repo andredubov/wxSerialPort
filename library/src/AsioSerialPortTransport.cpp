@@ -24,7 +24,7 @@ namespace wx
         }
         catch (const boost::system::system_error &e)
         {
-            auto message = wxString::Format("Error opening {}: {}", 
+            auto message = wxString::Format("Error opening %s: %s", 
                 portName.ToStdString(), 
                 e.what()
             );
@@ -33,7 +33,10 @@ namespace wx
 
         if (!serial_port.is_open())
         {
-            throw std::runtime_error("Failed to open port");
+            auto message = wxString::Format("Failed to open port %s", 
+                portName.ToStdString()
+            );
+            throw std::runtime_error(message);
         }
 
         SetBaudRate(baudRate);
@@ -82,7 +85,7 @@ namespace wx
         if (::ioctl(native_handle, TIOCMGET, &status) == -1)
         {
             int errorCode = errno;
-            auto message = wxString::Format("Failed to get RTS state: {} [errno: {}]", 
+            auto message = wxString::Format("Failed to get RTS state: %s [errno: %d]", 
                 strerror(errorCode), 
                 errorCode
             ).ToStdString();
@@ -102,7 +105,7 @@ namespace wx
         if (::ioctl(native_handle, TIOCMSET, &status) == -1)
         {
             int errorCode = errno;
-            auto message = wxString::Format("Failed to set RTS state: {} [errno: {}]", 
+            auto message = wxString::Format("Failed to set RTS state: %s [errno: %d]", 
                 strerror(errorCode), 
                 errorCode
             ).ToStdString();
