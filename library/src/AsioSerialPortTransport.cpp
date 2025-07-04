@@ -20,7 +20,12 @@ namespace wx
     {
         try
         {
-            serial_port.open(portName.ToStdString());
+        #ifndef _WIN32
+            std::string port = "\\\\.\\" + portName.ToStdString();
+        #else
+            std::string port = portName.ToStdString();
+        #endif    
+            serial_port.open(port);
         }
         catch (const boost::system::system_error &e)
         {
