@@ -120,7 +120,7 @@ namespace wx
 
         if (current_baud_rate.value() != baud_rate)
         {
-            auto message = wxString::Format("Failed to set baud rate. Requested:  {} actual: {}", 
+            auto message = wxString::Format("Failed to set baud rate. Requested: %u actual: %u", 
                 baud_rate, 
                 current_baud_rate.value()
             ).ToStdString();
@@ -150,12 +150,12 @@ namespace wx
         asio::serial_port_base::character_size current_data_bits;
         serial_port.get_option(current_data_bits);
 
-        auto data_bits_n = static_cast<int>(data_bits);
-        auto current_data_bits_n = static_cast<int>(current_data_bits.value());
+        auto data_bits_n = static_cast<uint32_t>(data_bits);
+        auto current_data_bits_n = static_cast<uint32_t>(current_data_bits.value());
 
         if (current_data_bits_n != data_bits_n)
         {
-            auto message = wxString::Format("Failed to set data bits. Requested: {}, actual: {}",
+            auto message = wxString::Format("Failed to set data bits. Requested: %u, actual: %u",
                 data_bits_n,
                 current_data_bits_n
             ).ToStdString();
@@ -187,7 +187,7 @@ namespace wx
 
         if (stop_bits_str != current_stop_bits_str)
         {
-            auto message = wxString::Format("Failed to set stop bits. Requested: {}, actual: {}",
+            auto message = wxString::Format("Failed to set stop bits. Requested: %s, actual: %s",
                 stop_bits_str,
                 current_stop_bits_str
             ).ToStdString();
@@ -219,7 +219,7 @@ namespace wx
 
         if (parity_str != current_parity_str)
         {
-            auto message = wxString::Format("Failed to set stop bits. Requested: {} , actual:  {}",
+            auto message = wxString::Format("Failed to set stop bits. Requested: %s, actual: %s",
                 parity_str,
                 current_parity_str
             ).ToStdString();
@@ -251,7 +251,7 @@ namespace wx
 
         if (flow_control_str != current_flow_control_str)
         {
-            auto message = wxString::Format("Failed to set stop bits. Requested: {} , actual: {}", 
+            auto message = wxString::Format("Failed to set stop bits. Requested: %s, actual: %s", 
                 flow_control_str, 
                 current_flow_control_str
             ).ToStdString();
